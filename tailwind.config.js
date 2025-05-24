@@ -2,7 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx,astro}",
   ],
   theme: {
     extend: {
@@ -11,12 +11,12 @@ export default {
         'body': ['Poppins', 'sans-serif'],
       },
       colors: {
-        'primary': '#8B0000', // Rojo oscuro
-        'secondary': '#111111', // Casi negro
-        'silver': '#C0C0C0', // Plateado
-        'accent': '#FFFFFF', // Blanco
+        'primary': '#8B0000',
+        'secondary': '#111111',
+        'silver': '#C0C0C0',
+        'accent': '#FFFFFF',
       },
     },
   },
   plugins: [],
-}
+};
