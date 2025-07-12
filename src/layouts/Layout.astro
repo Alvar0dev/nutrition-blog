@@ -1,0 +1,53 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import BaseHead from '../components/BaseHead.astro';
+import Navbar from '../components/Navbar.jsx';
+import Footer from '../components/Footer.astro';
+import defaultOgImage from '../assets/LOGO.png';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Local imported image or a path/URL string. Defaults to the site logo. */
+  image?: ImageMetadata | string;
+  pathname?: string;
+}
+
+const {
+  title = 'Nutricional Coach',
+  description = 'Nutrición personalizada y consciente para alcanzar tus objetivos de salud y rendimiento.',
+  image = defaultOgImage,
+  pathname = Astro.url.pathname,
+} = Astro.props;
+
+const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
+const imageSrc = typeof image === 'string' ? image : image.src;
+const ogImage = new URL(imageSrc, siteUrl).href;
+---
+
+<html lang="es">
+  <head>
+    <BaseHead title={title} description={description} image={ogImage} pathname={pathname} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Navbar client:visible>
+      <Image
+        src={defaultOgImage}
+        alt="Nutricional Coach"
+        width={192}
+        height={192}
+        format="webp"
+        quality={85}
+        loading="eager"
+        decoding="async"
+        class="w-full h-auto rounded-xl shadow-lg"
+      />
+    </Navbar>
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
