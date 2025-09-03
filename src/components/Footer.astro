@@ -1,0 +1,115 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/LOGO.png';
+---
+
+<footer class="bg-secondary text-accent">
+  <div class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div>
+        <div class="w-48 mb-6">
+          <Image
+            src={logo}
+            alt="Nutricional Coach"
+            width={192}
+            height={192}
+            format="webp"
+            quality={85}
+            loading="lazy"
+            decoding="async"
+            class="w-full h-auto"
+          />
+        </div>
+        <p class="font-body text-accent">
+          Transformando vidas a través de la nutrición personalizada y consciente.
+        </p>
+      </div>
+      <div>
+        <h4 class="font-display text-xl mb-6 text-accent">ENLACES</h4>
+        <ul class="space-y-4 font-body">
+          <li>
+            <a href="/blog" class="text-accent hover:text-primary transition-colors">
+              BLOG
+            </a>
+          </li>
+          <li>
+            <a href="/servicios" class="text-accent hover:text-primary transition-colors">
+              SERVICIOS
+            </a>
+          </li>
+          <li>
+            <a href="/contacto" class="text-accent hover:text-primary transition-colors">
+              CONTACTO
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-display text-xl mb-6 text-accent">CONTACTO</h4>
+        <ul class="space-y-4 font-body text-accent">
+          <li>
+            <a href="mailto:alvaroaguilarcejas@hotmail.com" class="hover:text-primary transition-colors">
+              alvaroaguilarcejas@hotmail.com
+            </a>
+          </li>
+          <li>
+            <a href="mailto:info@nutricionalcoach.com" class="hover:text-primary transition-colors">
+              info@nutricionalcoach.com
+            </a>
+          </li>
+          <li>
+            <a href="tel:+34655397061" class="hover:text-primary transition-colors">
+              655 397 061
+            </a>
+          </li>
+          <li>
+            <div class="flex space-x-4 mt-4">
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent hover:text-primary transition-colors"
+              >
+                Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent hover:text-primary transition-colors"
+              >
+                Facebook
+              </a>
+              <a
+                href="https://www.linkedin.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent hover:text-primary transition-colors"
+              >
+                LinkedIn
+              </a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 pt-8 border-t border-accent/20 flex flex-col items-center">
+      <div class="w-32 mb-4">
+        <Image
+          src={logo}
+          alt="Nutricional Coach"
+          width={128}
+          height={128}
+          format="webp"
+          quality={85}
+          loading="lazy"
+          decoding="async"
+          class="w-full h-auto opacity-50"
+        />
+      </div>
+      <p class="text-center text-accent font-body">
+        &copy; {new Date().getFullYear()} Nutricional Coach. Todos los derechos reservados.
+      </p>
+    </div>
+  </div>
+</footer>
