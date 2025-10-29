@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  href: string;
+  title: string;
+  image: string;
+  alt: string;
+  items: string[];
+  variant?: 'dark' | 'primary';
+}
+
+const { href, title, image, alt, items, variant = 'dark' } = Astro.props;
+const isDark = variant === 'dark';
+---
+
+<a href={href} class="group">
+  <div
+    class:list={[
+      isDark ? 'bg-secondary' : 'bg-primary',
+      'text-accent rounded-xl overflow-hidden transform hover:-translate-y-2 transition-transform',
+    ]}
+  >
+    <div class="relative h-48 overflow-hidden">
+      <Image
+        src={image}
+        alt={alt}
+        width={400}
+        height={300}
+        format="webp"
+        quality={80}
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+      />
+      <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-opacity"></div>
+      <h3 class:list={['font-display text-2xl absolute bottom-4 left-4', { 'text-silver': isDark }]}>
+        {title}
+      </h3>
+    </div>
+    <div class="p-6">
+      <ul class="space-y-3 font-body">
+        {items.map((item) => (
+          <li class="flex items-center">
+            <span class:list={[isDark ? 'text-primary' : 'text-silver', 'mr-2']}>•</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</a>

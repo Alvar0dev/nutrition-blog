@@ -1,0 +1,116 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import cachas from '../assets/cachas.png';
+
+const services = [
+  {
+    href: '/servicios/habitos',
+    title: 'MEJORA TUS HÁBITOS',
+    image: 'https://images.pexels.com/photos/3771069/pexels-photo-3771069.jpeg',
+    alt: 'Mejora tus hábitos',
+    items: ['Optimización del ciclo del sueño', 'Control de la ansiedad alimentaria', 'Desarrollo de hábitos saludables'],
+  },
+  {
+    href: '/servicios/objetivos',
+    title: 'CONSIGUE TUS OBJETIVOS',
+    image: 'https://images.pexels.com/photos/4498151/pexels-photo-4498151.jpeg',
+    alt: 'Consigue tus objetivos',
+    items: ['Preparación para oposiciones', 'Competiciones deportivas', 'Objetivos deportivos personalizados'],
+  },
+  {
+    href: '/servicios/composicion',
+    title: 'COMPOSICIÓN CORPORAL',
+    image: 'https://images.pexels.com/photos/1547248/pexels-photo-1547248.jpeg',
+    alt: 'Composición corporal',
+    items: ['Aumento de masa muscular', 'Reducción de porcentaje graso', 'Optimización del rendimiento físico'],
+  },
+  {
+    href: '/servicios/salud',
+    title: 'RECUPERA TU SALUD',
+    image: 'https://images.pexels.com/photos/3823207/pexels-photo-3823207.jpeg',
+    alt: 'Recupera tu salud',
+    items: ['Optimización hormonal', 'Recuperación de marcadores', 'Aumento de energía y vitalidad'],
+  },
+  {
+    href: '/servicios/asesoramiento',
+    title: 'ASESORAMIENTO PERSONALIZADO',
+    image: 'https://images.pexels.com/photos/4098228/pexels-photo-4098228.jpeg',
+    alt: 'Asesoramiento personalizado',
+    items: ['Planes nutricionales a medida', 'Seguimiento continuo', 'Soporte nutricional personalizado'],
+  },
+  {
+    href: '/servicios/educacion',
+    title: 'EDUCACIÓN NUTRICIONAL',
+    image: 'https://images.pexels.com/photos/4397833/pexels-photo-4397833.jpeg',
+    alt: 'Educación nutricional',
+    items: ['Formación en nutrición básica', 'Talleres prácticos de cocina', 'Gestión de la alimentación diaria'],
+  },
+];
+---
+
+<Layout
+  title="Nutricional Coach - Diseña tu cuerpo"
+  description="Descubre el poder de una alimentación consciente y personalizada para alcanzar tus objetivos de salud y rendimiento."
+  image={cachas}
+>
+  <!-- Hero Section -->
+  <section class="bg-black text-accent py-20 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-1/2 h-full bg-primary transform skew-x-12 -mr-32 opacity-80"></div>
+    <div class="container mx-auto px-4 relative">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h1 class="font-display text-6xl md:text-7xl mb-8 text-silver">DISEÑA TU CUERPO</h1>
+          <p class="text-xl mb-8 font-body text-gray-300">
+            Descubre el poder de una alimentación consciente y personalizada para alcanzar tus objetivos de salud y rendimiento.
+          </p>
+          <a
+            href="https://forms.gle/1PnXermhG98u8NZq6"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group relative inline-flex items-center justify-center px-8 py-3 font-display text-lg bg-primary text-accent rounded-lg hover:bg-opacity-90 transition-colors"
+          >
+            EMPIEZA AHORA
+          </a>
+        </div>
+        <div class="relative h-full">
+          <div class="absolute right-0 top-0 bottom-0 w-full">
+            <Image
+              src={cachas}
+              alt="Transformación física"
+              width={800}
+              height={600}
+              format="webp"
+              quality={85}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              class="absolute right-0 h-[140%] w-auto object-cover -rotate-90 transform origin-center scale-150"
+              style="margin-right: -1px;"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16 bg-accent">
+    <div class="container mx-auto px-4">
+      <h2 class="font-display text-4xl text-secondary text-center mb-12">SERVICIOS</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {services.map((service, index) => (
+          <ServiceCard
+            href={service.href}
+            title={service.title}
+            image={service.image}
+            alt={service.alt}
+            items={service.items}
+            variant={index % 2 === 0 ? 'dark' : 'primary'}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
