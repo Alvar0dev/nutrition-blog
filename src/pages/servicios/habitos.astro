@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+const images = [
+  {
+    url: 'https://images.pexels.com/photos/3771069/pexels-photo-3771069.jpeg',
+    title: 'Ciclo del Sueño',
+    description: 'Optimiza tu descanso para una mejor recuperación',
+  },
+  {
+    url: 'https://images.pexels.com/photos/3759658/pexels-photo-3759658.jpeg',
+    title: 'Control de Ansiedad',
+    description: 'Técnicas para manejar la ansiedad alimentaria',
+  },
+  {
+    url: 'https://images.pexels.com/photos/4386466/pexels-photo-4386466.jpeg',
+    title: 'Hábitos Saludables',
+    description: 'Desarrollo de rutinas sostenibles',
+  },
+];
+---
+
+<Layout
+  title="Mejora tus Hábitos | Nutricional Coach"
+  description="Programa completo para transformar tus hábitos de sueño, alimentación y gestión del estrés de forma sostenible."
+>
+  <div class="bg-accent min-h-screen py-16">
+    <div class="container mx-auto px-4">
+      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+        ← Volver a Servicios
+      </a>
+
+      <h1 class="font-display text-5xl text-secondary mb-8">MEJORA TUS HÁBITOS</h1>
+
+      <div class="prose max-w-none mb-12">
+        <p class="text-xl text-gray-600">
+          Un programa completo diseñado para transformar tus hábitos y mejorar tu calidad de vida,
+          enfocándonos en los aspectos fundamentales del bienestar: sueño, alimentación y gestión del estrés.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {images.map((image) => (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={image.url}
+              alt={image.title}
+              width={400}
+              height={300}
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="w-full h-48 object-cover"
+            />
+            <div class="p-6 bg-secondary">
+              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <p class="text-accent">{image.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="bg-secondary text-accent p-8 rounded-xl">
+        <h2 class="font-display text-3xl mb-6 text-silver">¿Qué incluye este servicio?</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="font-display text-xl mb-4">Optimización del Sueño</h3>
+            <ul class="space-y-3">
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Análisis de patrones de sueño
+              </li>
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Estrategias para mejorar la calidad del descanso
+              </li>
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Rutinas pre-sueño personalizadas
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-display text-xl mb-4">Control de Ansiedad</h3>
+            <ul class="space-y-3">
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Técnicas de mindful eating
+              </li>
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Gestión de antojos y compulsiones
+              </li>
+              <li class="flex items-center">
+                <span class="text-primary mr-2">•</span>
+                Estrategias de regulación emocional
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a
+          href="https://forms.gle/1PnXermhG98u8NZq6"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+        >
+          EMPIEZA AHORA
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
