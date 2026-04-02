@@ -1,0 +1,130 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+const images = [
+  {
+    url: 'https://images.pexels.com/photos/4098228/pexels-photo-4098228.jpeg',
+    title: 'Planes Personalizados',
+    description: 'Nutrición adaptada a tus necesidades específicas',
+  },
+  {
+    url: 'https://images.pexels.com/photos/5473298/pexels-photo-5473298.jpeg',
+    title: 'Seguimiento Continuo',
+    description: 'Apoyo y ajustes constantes en tu proceso',
+  },
+  {
+    url: 'https://images.pexels.com/photos/5473302/pexels-photo-5473302.jpeg',
+    title: 'Resultados Medibles',
+    description: 'Control y seguimiento de tu progreso',
+  },
+];
+---
+
+<Layout
+  title="Asesoramiento Personalizado | Nutricional Coach"
+  description="Asesoramiento nutricional personalizado con seguimiento continuo y más de 15 años de experiencia adaptados a tu estilo de vida."
+>
+  <div class="bg-accent min-h-screen py-16">
+    <div class="container mx-auto px-4">
+      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+        ← Volver a Servicios
+      </a>
+
+      <h1 class="font-display text-5xl text-secondary mb-8">ASESORAMIENTO PERSONALIZADO</h1>
+
+      <div class="prose max-w-none mb-12">
+        <p class="text-xl text-gray-600">
+          Un servicio completamente personalizado que se adapta a tus necesidades específicas,
+          estilo de vida y objetivos. Más de 15 años de experiencia respaldan nuestro método
+          de trabajo individualizado.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {images.map((image) => (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={image.url}
+              alt={image.title}
+              width={400}
+              height={300}
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="w-full h-64 object-cover"
+            />
+            <div class="p-6 bg-secondary">
+              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <p class="text-accent">{image.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-secondary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6 text-silver">El Proceso</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-primary mr-2">1.</span>
+              Evaluación inicial detallada
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">2.</span>
+              Diseño de plan personalizado
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">3.</span>
+              Seguimiento semanal
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">4.</span>
+              Ajustes basados en resultados
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">5.</span>
+              Soporte continuo
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-primary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6">Incluye</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Plan nutricional detallado
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Guía de suplementación
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Recetas y alternativas
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Seguimiento por WhatsApp
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Revisiones periódicas
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a
+          href="/contacto"
+          class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+        >
+          SOLICITA TU CONSULTA
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

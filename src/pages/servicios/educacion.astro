@@ -1,0 +1,130 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+const images = [
+  {
+    url: 'https://images.pexels.com/photos/4397833/pexels-photo-4397833.jpeg',
+    title: 'Nutrición Básica',
+    description: 'Fundamentos de una alimentación saludable',
+  },
+  {
+    url: 'https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg',
+    title: 'Cocina Práctica',
+    description: 'Aprende a preparar comidas nutritivas',
+  },
+  {
+    url: 'https://images.pexels.com/photos/5940841/pexels-photo-5940841.jpeg',
+    title: 'Planificación',
+    description: 'Organización y preparación de menús',
+  },
+];
+---
+
+<Layout
+  title="Educación Nutricional | Nutricional Coach"
+  description="Aprende los fundamentos de una nutrición saludable y sostenible con talleres prácticos de cocina y planificación de menús."
+>
+  <div class="bg-accent min-h-screen py-16">
+    <div class="container mx-auto px-4">
+      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+        ← Volver a Servicios
+      </a>
+
+      <h1 class="font-display text-5xl text-secondary mb-8">EDUCACIÓN NUTRICIONAL</h1>
+
+      <div class="prose max-w-none mb-12">
+        <p class="text-xl text-gray-600">
+          Aprende los fundamentos de una nutrición saludable y sostenible. Te enseñamos
+          a tomar mejores decisiones sobre tu alimentación y a desarrollar hábitos que
+          durarán toda la vida.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {images.map((image) => (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={image.url}
+              alt={image.title}
+              width={400}
+              height={300}
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="w-full h-64 object-cover"
+            />
+            <div class="p-6 bg-secondary">
+              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <p class="text-accent">{image.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-secondary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6 text-silver">Formación Nutricional</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Principios básicos de nutrición
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Macronutrientes y micronutrientes
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Lectura de etiquetas nutricionales
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Mitos y realidades de la nutrición
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Suplementación básica
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-primary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6">Talleres Prácticos</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Planificación de menús semanales
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Preparación de comidas saludables
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Técnicas de batch cooking
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Compra inteligente de alimentos
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Gestión de la alimentación diaria
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a
+          href="/contacto"
+          class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+        >
+          COMIENZA A APRENDER
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

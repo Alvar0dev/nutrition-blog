@@ -1,0 +1,122 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+const images = [
+  {
+    url: 'https://images.pexels.com/photos/3823207/pexels-photo-3823207.jpeg',
+    title: 'Optimización Hormonal',
+    description: 'Recupera tu equilibrio hormonal natural',
+  },
+  {
+    url: 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg',
+    title: 'Energía y Vitalidad',
+    description: 'Mejora tus niveles de energía diarios',
+  },
+  {
+    url: 'https://images.pexels.com/photos/4386466/pexels-photo-4386466.jpeg',
+    title: 'Bienestar General',
+    description: 'Recupera tu salud y calidad de vida',
+  },
+];
+---
+
+<Layout
+  title="Recupera tu Salud | Nutricional Coach"
+  description="Programa integral de nutrición para optimizar tus marcadores de salud, equilibrio hormonal, energía y vitalidad."
+>
+  <div class="bg-accent min-h-screen py-16">
+    <div class="container mx-auto px-4">
+      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+        ← Volver a Servicios
+      </a>
+
+      <h1 class="font-display text-5xl text-secondary mb-8">RECUPERA TU SALUD</h1>
+
+      <div class="prose max-w-none mb-12">
+        <p class="text-xl text-gray-600">
+          Programa integral diseñado para recuperar tu vitalidad y bienestar. Nos enfocamos en
+          optimizar tus marcadores de salud y equilibrio hormonal para que vuelvas a sentirte
+          en tu mejor versión.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {images.map((image) => (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={image.url}
+              alt={image.title}
+              width={400}
+              height={300}
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="w-full h-64 object-cover"
+            />
+            <div class="p-6 bg-secondary">
+              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <p class="text-accent">{image.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-secondary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6 text-silver">Optimización Hormonal</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Mejora de niveles de testosterona
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Balance hormonal natural
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Optimización del cortisol
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Regulación del metabolismo
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-primary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6">Recuperación de la Salud</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Mejora de marcadores sanguíneos
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Aumento de energía y vitalidad
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Optimización del descanso
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Mejora del estado de ánimo
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a
+          href="/contacto"
+          class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+        >
+          RECUPERA TU BIENESTAR
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

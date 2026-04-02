@@ -1,0 +1,121 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+const images = [
+  {
+    url: 'https://images.pexels.com/photos/1547248/pexels-photo-1547248.jpeg',
+    title: 'Masa Muscular',
+    description: 'Desarrollo muscular óptimo y sostenible',
+  },
+  {
+    url: 'https://images.pexels.com/photos/4164762/pexels-photo-4164762.jpeg',
+    title: 'Definición',
+    description: 'Reducción de grasa y mejora de la definición muscular',
+  },
+  {
+    url: 'https://images.pexels.com/photos/4498603/pexels-photo-4498603.jpeg',
+    title: 'Rendimiento',
+    description: 'Optimización de la composición corporal para el rendimiento',
+  },
+];
+---
+
+<Layout
+  title="Composición Corporal | Nutricional Coach"
+  description="Mejora tu composición corporal aumentando masa muscular y reduciendo grasa con estrategias nutricionales basadas en evidencia."
+>
+  <div class="bg-accent min-h-screen py-16">
+    <div class="container mx-auto px-4">
+      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+        ← Volver a Servicios
+      </a>
+
+      <h1 class="font-display text-5xl text-secondary mb-8">COMPOSICIÓN CORPORAL</h1>
+
+      <div class="prose max-w-none mb-12">
+        <p class="text-xl text-gray-600">
+          Transforma tu cuerpo de manera efectiva y saludable. Nuestro enfoque se centra en mejorar
+          tu composición corporal a través de estrategias nutricionales personalizadas y basadas en evidencia.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        {images.map((image) => (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={image.url}
+              alt={image.title}
+              width={400}
+              height={300}
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="w-full h-64 object-cover"
+            />
+            <div class="p-6 bg-secondary">
+              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <p class="text-accent">{image.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-secondary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6 text-silver">Aumento de Masa Muscular</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Optimización de la ingesta proteica
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Distribución de macronutrientes
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Nutrición periworkout
+            </li>
+            <li class="flex items-center">
+              <span class="text-primary mr-2">•</span>
+              Suplementación específica
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-primary text-accent p-8 rounded-xl">
+          <h2 class="font-display text-3xl mb-6">Reducción de Grasa</h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Déficit calórico sostenible
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Preservación de masa muscular
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Gestión del hambre y antojos
+            </li>
+            <li class="flex items-center">
+              <span class="text-silver mr-2">•</span>
+              Estrategias de adherencia
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a
+          href="/contacto"
+          class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+        >
+          TRANSFORMA TU CUERPO
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
