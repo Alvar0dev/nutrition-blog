@@ -1,0 +1,85 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import ContactForm from '../components/ContactForm.jsx';
+import AuthPlaceholder from '../components/AuthPlaceholder.jsx';
+import profileImage from '../assets/yo.png';
+
+const specialties = [
+  'Nutrición Deportiva Avanzada',
+  'Planes de Entrenamiento Personalizados',
+  'Preparación para Competiciones',
+  'Rehabilitación Nutricional',
+  'Pérdida de Grasa y Ganancia Muscular',
+];
+
+const contacts = [
+  { href: 'mailto:alvaroaguilarcejas@hotmail.com', label: 'alvaroaguilarcejas@hotmail.com' },
+  { href: 'mailto:info@nutricionalcoach.com', label: 'info@nutricionalcoach.com' },
+  { href: 'tel:+34655397061', label: '655 397 061' },
+];
+---
+
+<Layout
+  title="Contacto | Nutricional Coach"
+  description="Contacta con Álvaro Aguilar, especialista en nutrición deportiva y coach nutricional con más de 15 años de experiencia."
+>
+  <div class="bg-accent py-12">
+    <div class="container mx-auto px-4">
+      <h1 class="font-display text-5xl text-secondary mb-12 text-center">CONTACTO</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        <!-- Información de Contacto -->
+        <div>
+          <div class="mb-8">
+            <div class="w-64 h-64 mx-auto mb-6 overflow-hidden rounded-full shadow-xl border-4 border-silver">
+              <Image
+                src={profileImage}
+                alt="Álvaro Aguilar"
+                width={600}
+                height={600}
+                format="webp"
+                quality={80}
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <h2 class="font-display text-3xl text-secondary mb-4 text-center">Álvaro Aguilar</h2>
+            <p class="text-gray-600 mb-6 font-body">
+              Especialista en nutrición deportiva y coach nutricional con más de 15 años de experiencia
+              diseñando planes nutricionales y de entrenamiento personalizados. Mi enfoque integral
+              combina nutrición científica con estrategias prácticas para ayudarte a alcanzar tus
+              objetivos de salud y rendimiento.
+            </p>
+            <div class="bg-silver/10 p-6 rounded-xl mb-6">
+              <h3 class="font-display text-xl text-secondary mb-4">ESPECIALIDADES:</h3>
+              <ul class="space-y-2 text-gray-600">
+                {specialties.map((item) => <li>• {item}</li>)}
+              </ul>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="font-display text-xl text-secondary mb-4">INFORMACIÓN DE CONTACTO</h3>
+            <div class="space-y-2">
+              {contacts.map(({ href, label }) => (
+                <a href={href} class="flex items-center text-gray-600 hover:text-primary transition-colors">
+                  <span class="font-body">{label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de Contacto (isla React client:load) -->
+        <div class="bg-secondary p-8 rounded-xl shadow-lg">
+          <h3 class="font-display text-2xl text-silver mb-6">ENVÍAME UN MENSAJE</h3>
+          <ContactForm client:load />
+          <AuthPlaceholder client:load />
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
