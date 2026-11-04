@@ -1,0 +1,77 @@
+# Changelog
+
+Todos los cambios notables de este proyecto se documentan en este archivo siguiendo el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y [Versionado Semántico](https://semver.org/lang/es/).
+
+---
+
+## [1.0.0] - 2026-11-04
+
+### Añadido
+- Documentación arquitectónica completa (`docs/ADR-001-migracion-arquitectura-islas.md` y `docs/PERFORMANCE_AUDIT.md`).
+- Archivo `public/robots.txt` para directivas de indexación de motores de búsqueda.
+- Ruta `/login` (`src/pages/login.astro`) e isla `src/components/AuthPlaceholder.jsx` (`client:load`) como punto de extensión preparado para futura autenticación de clientes con Firebase Auth.
+
+### Optimizado
+- Autorización del dominio `images.pexels.com` en el pipeline de imágenes de `astro.config.mjs`, compilando las 29 fotografías remotas (de 544 KB–6.2 MB a 3 KB–27 KB en WebP).
+- Priorización de elementos LCP (`loading="eager"` y `fetchpriority="high"`) en las vistas principales, alcanzando **100/100 en Lighthouse Performance y SEO** en `/`, `/blog`, `/contacto` y `/servicios`.
+
+---
+
+## [0.8.0] - 2026-09-06
+
+### Eliminado
+- Punto de entrada de la antigua SPA en React (`src/main.jsx`, `src/App.jsx`, `src/App.css`, `src/index.css`, `index.html` de raíz y `vite.config.js`).
+
+---
+
+## [0.7.0] - 2026-05-27
+
+### Añadido
+- Isla interactiva `src/components/ContactForm.jsx` (`client:load`) con estado controlado para el formulario de contacto.
+- Nueva página estática `src/pages/contacto.astro` con compresión del retrato `yo.png` de **17.4 MB a 16.3 KB WebP**.
+
+---
+
+## [0.6.0] - 2026-04-02
+
+### Añadido
+- Migración completa del catálogo de servicios (`src/pages/servicios/index.astro`) y de las seis páginas de detalle (`habitos`, `objetivos`, `composicion`, `salud`, `asesoramiento` y `educacion`) a plantillas nativas de Astro con `<Image>` de `astro:assets`.
+
+---
+
+## [0.5.0] - 2025-12-14
+
+### Añadido
+- Migración de la vista de artículos `src/pages/blog.astro` y de la portada `src/pages/index.astro`.
+- Extracción del componente estático reutilizable `src/components/ServiceCard.astro` con variantes de color (`dark` / `primary`).
+
+---
+
+## [0.4.0] - 2025-09-03
+
+### Cambiado
+- Conversión de `Footer` a componente estático `src/components/Footer.astro` con logotipos optimizados en WebP y enlaces sociales rastreables.
+- Desacoplamiento de `src/components/Navbar.jsx` respecto a `react-router-dom`, utilizando enlaces estándar `<a>` e hidratación diferida (`client:visible`).
+
+---
+
+## [0.3.0] - 2025-07-12
+
+### Añadido
+- Componente `src/components/BaseHead.astro` con soporte para URLs canónicas, metadatos dinámicos en español (`es_ES`), Open Graph y Twitter Cards.
+- Plantilla maestra `src/layouts/Layout.astro` con `<html lang="es">` y estructura semántica `<main class="flex-grow">`.
+
+---
+
+## [0.2.0] - 2025-05-24
+
+### Añadido
+- Configuración base de **Astro** (`astro.config.mjs`, `src/env.d.ts`) e integración `@astrojs/react`.
+- Hoja de estilos global `src/styles/global.css` con tipografías auto-hospedadas (`@fontsource/poppins` y `@fontsource/permanent-marker`), eliminando las peticiones bloqueantes a Google Fonts.
+
+---
+
+## [0.1.0] - 2025-01-06
+
+### Añadido
+- Versión inicial del portal como Single Page Application con React 18, Vite 6, Tailwind CSS 3 y React Router DOM 7.
