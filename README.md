@@ -44,7 +44,8 @@ nutrition-blog/
 ├── postcss.config.js                # Pipeline PostCSS (Tailwind CSS + Autoprefixer)
 ├── docs/
 │   ├── ADR-001-migracion-arquitectura-islas.md
-│   └── PERFORMANCE_AUDIT.md
+│   ├── PERFORMANCE_AUDIT.md
+│   └── POST_PRODUCTION_ROADMAP.md
 ├── public/
 │   ├── robots.txt
 │   └── vite.svg
@@ -82,4 +83,4 @@ Resultados medidos sobre el build de producción (`dist/`):
 | `/contacto` | **100** | **100** | `0.2 s` | `0.4 s` | `0 ms` | `0.005` |
 | `/servicios` | **100** | **100** | `0.2 s` | `0.4 s` | `0 ms` | `0.001` |
 
-Para ver el detalle completo de compresión de imágenes (incluyendo la reducción de `yo.png` de **17 MB a 16.3 KB WebP**) consulta [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md) y el historial de versiones en [`CHANGELOG.md`](CHANGELOG.md).
+Para ver el detalle completo de compresión de imágenes consulta [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md), las mejoras planificadas en [`docs/POST_PRODUCTION_ROADMAP.md`](docs/POST_PRODUCTION_ROADMAP.md) y el historial de versiones en [`CHANGELOG.md`](CHANGELOG.md).
