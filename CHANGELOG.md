@@ -4,6 +4,27 @@ Todos los cambios notables de este proyecto se documentan en este archivo siguie
 
 ---
 
+## [1.1.0] - 2026-11-08
+
+### Añadido
+- Menú de navegación móvil desplegable y accesible (`aria-expanded`, `aria-controls`, `aria-current="page"`) en `src/components/Navbar.jsx`.
+- Enlace de accesibilidad *skip-to-content* (`#main-content`) en `src/layouts/Layout.astro` conforme a WCAG 2.1.
+- Generador estático de mapa del sitio `src/pages/sitemap.xml.js` y referencia `Sitemap` en `public/robots.txt`.
+- Datos estructurados Schema.org JSON-LD (`HealthAndBeautyBusiness`, `Person` y `WebSite`) en `src/components/BaseHead.astro`.
+- Isotipo vectorial corporativo `public/favicon.svg`.
+- Estado de confirmación interactivo en `src/components/ContactForm.jsx` con envío directo pre-formateado por WhatsApp y correo electrónico.
+
+### Optimizado
+- Enrutamiento de CTAs de servicios hacia el formulario de evaluación en Google Forms (`habitos`, `objetivos`, `composicion`, `salud`) y contacto directo por WhatsApp (`asesoramiento`, `educacion`).
+- Deshidratación de `src/components/AuthPlaceholder.jsx` en `/contacto` y `/login` para evitar carga de JavaScript en cliente mientras Firebase Auth no esté activo.
+- Importación explícita de los pesos tipográficos `400`, `600` y `700` de `@fontsource/poppins` en `src/styles/global.css`.
+
+### Eliminado
+- Dependencias sin uso en el código fuente (`@heroicons/react`, `@vitejs/plugin-react`, `eslint-plugin-react-refresh`, `vite`).
+- Activos huérfanos de la plantilla inicial (`public/vite.svg`, `src/assets/alvaro-profile.jpg`, `src/assets/muscles.jpg`, `src/assets/logo-completo.svg`, `src/assets/react.svg`).
+
+---
+
 ## [1.0.0] - 2026-11-04
 
 ### Añadido
