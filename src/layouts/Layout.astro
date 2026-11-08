@@ -13,6 +13,7 @@ interface Props {
   /** Local imported image or a path/URL string. Defaults to the site logo. */
   image?: ImageMetadata | string;
   pathname?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -20,6 +21,7 @@ const {
   description = 'Nutrición personalizada y consciente para alcanzar tus objetivos de salud y rendimiento.',
   image = defaultOgImage,
   pathname = Astro.url.pathname,
+  noindex = false,
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
@@ -29,10 +31,22 @@ const ogImage = new URL(imageSrc, siteUrl).href;
 
 <html lang="es">
   <head>
-    <BaseHead title={title} description={description} image={ogImage} pathname={pathname} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={ogImage}
+      pathname={pathname}
+      noindex={noindex}
+    />
   </head>
   <body class="min-h-screen flex flex-col">
-    <Navbar client:visible>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:text-accent focus:px-4 focus:py-2 focus:rounded-lg focus:font-display focus:shadow-lg"
+    >
+      Saltar al contenido principal
+    </a>
+    <Navbar client:visible pathname={pathname}>
       <Image
         src={defaultOgImage}
         alt="Nutricional Coach"
@@ -45,7 +59,7 @@ const ogImage = new URL(imageSrc, siteUrl).href;
         class="w-full h-auto rounded-xl shadow-lg"
       />
     </Navbar>
-    <main class="flex-grow">
+    <main id="main-content" class="flex-grow">
       <slot />
     </main>
     <Footer />

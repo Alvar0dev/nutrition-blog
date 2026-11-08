@@ -8,9 +8,10 @@ interface Props {
   alt: string;
   items: string[];
   variant?: 'dark' | 'primary';
+  loading?: 'eager' | 'lazy';
 }
 
-const { href, title, image, alt, items, variant = 'dark' } = Astro.props;
+const { href, title, image, alt, items, variant = 'dark', loading = 'lazy' } = Astro.props;
 const isDark = variant === 'dark';
 ---
 
@@ -29,7 +30,7 @@ const isDark = variant === 'dark';
         height={300}
         format="webp"
         quality={80}
-        loading="lazy"
+        loading={loading}
         decoding="async"
         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
       />
