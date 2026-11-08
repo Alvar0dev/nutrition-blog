@@ -7,7 +7,7 @@ import logo from '../assets/LOGO.png';
   <div class="container mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
       <div>
-        <div class="w-48 mb-6">
+        <a href="/" class="inline-block w-48 mb-6" aria-label="Nutricional Coach - Ir al inicio">
           <Image
             src={logo}
             alt="Nutricional Coach"
@@ -19,14 +19,19 @@ import logo from '../assets/LOGO.png';
             decoding="async"
             class="w-full h-auto"
           />
-        </div>
-        <p class="font-body text-accent">
+        </a>
+        <p class="font-body text-accent/90">
           Transformando vidas a través de la nutrición personalizada y consciente.
         </p>
       </div>
       <div>
-        <h4 class="font-display text-xl mb-6 text-accent">ENLACES</h4>
+        <h2 class="font-display text-xl mb-6 text-accent">ENLACES</h2>
         <ul class="space-y-4 font-body">
+          <li>
+            <a href="/" class="text-accent hover:text-primary transition-colors">
+              INICIO
+            </a>
+          </li>
           <li>
             <a href="/blog" class="text-accent hover:text-primary transition-colors">
               BLOG
@@ -45,7 +50,7 @@ import logo from '../assets/LOGO.png';
         </ul>
       </div>
       <div>
-        <h4 class="font-display text-xl mb-6 text-accent">CONTACTO</h4>
+        <h2 class="font-display text-xl mb-6 text-accent">CONTACTO</h2>
         <ul class="space-y-4 font-body text-accent">
           <li>
             <a href="mailto:alvaroaguilarcejas@hotmail.com" class="hover:text-primary transition-colors">
@@ -63,27 +68,30 @@ import logo from '../assets/LOGO.png';
             </a>
           </li>
           <li>
-            <div class="flex space-x-4 mt-4">
+            <div class="flex flex-wrap gap-4 mt-4">
+              <a
+                href="https://wa.me/34655397061"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Contactar por WhatsApp"
+                class="text-accent hover:text-primary transition-colors"
+              >
+                WhatsApp
+              </a>
               <a
                 href="https://www.instagram.com/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Visitar perfil de Instagram"
                 class="text-accent hover:text-primary transition-colors"
               >
                 Instagram
               </a>
               <a
-                href="https://www.facebook.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-accent hover:text-primary transition-colors"
-              >
-                Facebook
-              </a>
-              <a
                 href="https://www.linkedin.com/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Visitar perfil de LinkedIn"
                 class="text-accent hover:text-primary transition-colors"
               >
                 LinkedIn
@@ -94,20 +102,7 @@ import logo from '../assets/LOGO.png';
       </div>
     </div>
     <div class="mt-12 pt-8 border-t border-accent/20 flex flex-col items-center">
-      <div class="w-32 mb-4">
-        <Image
-          src={logo}
-          alt="Nutricional Coach"
-          width={128}
-          height={128}
-          format="webp"
-          quality={85}
-          loading="lazy"
-          decoding="async"
-          class="w-full h-auto opacity-50"
-        />
-      </div>
-      <p class="text-center text-accent font-body">
+      <p class="text-center text-accent/80 font-body text-sm">
         &copy; {new Date().getFullYear()} Nutricional Coach. Todos los derechos reservados.
       </p>
     </div>

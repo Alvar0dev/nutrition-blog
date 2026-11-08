@@ -5,22 +5,63 @@ interface Props {
   /** Absolute URL of the social sharing image. */
   image: string;
   pathname: string;
+  noindex?: boolean;
 }
 
-const { title, description, image, pathname } = Astro.props;
+const { title, description, image, pathname, noindex = false } = Astro.props;
 const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
 const url = new URL(pathname, siteUrl).href;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'HealthAndBeautyBusiness',
+      '@id': `${siteUrl.origin}/#organization`,
+      name: 'Nutricional Coach',
+      url: siteUrl.origin,
+      logo: image,
+      image: image,
+      description:
+        'Servicio de nutrición deportiva avanzada, recomposición corporal y educación nutricional personalizada.',
+      telephone: '+34655397061',
+      email: 'info@nutricionalcoach.com',
+      founder: {
+        '@type': 'Person',
+        name: 'Álvaro Aguilar',
+        jobTitle: 'Especialista en Nutrición Deportiva y Coach Nutricional',
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: 'ES',
+      },
+      sameAs: ['https://wa.me/34655397061'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl.origin}/#website`,
+      url: siteUrl.origin,
+      name: 'Nutricional Coach',
+      inLanguage: 'es-ES',
+      publisher: {
+        '@id': `${siteUrl.origin}/#organization`,
+      },
+    },
+  ],
+};
 ---
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="index, follow" />
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+<meta name="theme-color" content="#111111" />
 
 <title>{title}</title>
 <meta name="description" content={description} />
-<meta name="author" content="Nutricional Coach" />
+<meta name="author" content="Álvaro Aguilar - Nutricional Coach" />
 <link rel="canonical" href={url} />
-<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap.xml" />
 
 <!-- Open Graph -->
 <meta property="og:type" content="website" />
@@ -37,3 +78,6 @@ const url = new URL(pathname, siteUrl).href;
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={image} />
+
+<!-- Schema.org JSON-LD -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />

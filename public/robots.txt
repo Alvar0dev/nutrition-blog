@@ -1,2 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /login
+
+Sitemap: https://nutricionalcoach.com/sitemap.xml

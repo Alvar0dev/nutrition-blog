@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nutricional Coach">
+  <defs>
+    <clipPath id="rounded">
+      <rect width="64" height="64" rx="14" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rounded)">
+    <rect width="64" height="64" fill="#111111" />
+    <polygon points="36,0 64,0 64,64 22,64" fill="#8B0000" opacity="0.9" />
+    <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#C0C0C0" stroke-width="2" stroke-opacity="0.35" />
+    <path
+      d="M12 45V19h6.2l10.3 15.8V19H34v26h-6l-10.5-16V45H12zm36.4-7.8c-.7 2.7-2.1 4.8-4.1 6.2-2 1.4-4.5 2.1-7.5 2.1-3.9 0-7-1.2-9.2-3.6-2.2-2.4-3.3-5.7-3.3-9.9 0-4.2 1.1-7.5 3.3-9.9 2.2-2.4 5.3-3.6 9.2-3.6 3 0 5.5.7 7.5 2.1 2 1.4 3.4 3.5 4.1 6.2h-6.1c-.9-2.2-2.7-3.3-5.5-3.3-2.1 0-3.7.7-4.8 2.2-1.1 1.4-1.7 3.5-1.7 6.3s.6 4.9 1.7 6.3c1.1 1.5 2.7 2.2 4.8 2.2 2.8 0 4.6-1.1 5.5-3.3h6.1z"
+      fill="#FFFFFF"
+    />
+  </g>
+</svg>
