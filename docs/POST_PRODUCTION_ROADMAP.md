@@ -55,3 +55,5 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
    - Actualizar las URLs definitivas de Instagram y LinkedIn de Álvaro Aguilar en `src/components/Footer.astro` y en el array `sameAs` del bloque Schema.org JSON-LD en `src/components/BaseHead.astro`.
 4. **Activación Opcional del Área de Clientes (Firebase Auth):**
    - Cuando se requiera habilitar el portal privado en `/login`, instalar `firebase`, crear `src/lib/firebase.js` y activar `client:load` sobre `AuthPlaceholder.jsx`.
+
+*(Para el detalle técnico paso a paso de cada una de estas tareas, consultar [`docs/PLAN_FASE_2_EJECUCION.md`](PLAN_FASE_2_EJECUCION.md)).*

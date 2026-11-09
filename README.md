@@ -45,7 +45,8 @@ nutrition-blog/
 ├── docs/
 │   ├── ADR-001-migracion-arquitectura-islas.md
 │   ├── PERFORMANCE_AUDIT.md
-│   └── POST_PRODUCTION_ROADMAP.md
+│   ├── POST_PRODUCTION_ROADMAP.md
+│   └── PLAN_FASE_2_EJECUCION.md
 ├── public/
 │   ├── favicon.svg
 │   └── robots.txt
@@ -84,4 +85,4 @@ Resultados medidos sobre el build de producción (`dist/`):
 | `/contacto` | **100** | **100** | `0.2 s` | `0.4 s` | `0 ms` | `0.005` |
 | `/servicios` | **100** | **100** | `0.2 s` | `0.4 s` | `0 ms` | `0.001` |
 
-Para ver el detalle completo de compresión de imágenes consulta [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md), las mejoras implementadas en postproducción en [`docs/POST_PRODUCTION_ROADMAP.md`](docs/POST_PRODUCTION_ROADMAP.md) y el historial de versiones en [`CHANGELOG.md`](CHANGELOG.md).
+Para ver el detalle completo de compresión de imágenes consulta [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md), la hoja de ruta en [`docs/POST_PRODUCTION_ROADMAP.md`](docs/POST_PRODUCTION_ROADMAP.md), el plan operativo de trabajo en [`docs/PLAN_FASE_2_EJECUCION.md`](docs/PLAN_FASE_2_EJECUCION.md) y el historial de versiones en [`CHANGELOG.md`](CHANGELOG.md).
