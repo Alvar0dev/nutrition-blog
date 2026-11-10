@@ -19,4 +19,43 @@
   .container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  /*
+   * Typography for rendered Markdown blog posts.
+   * Kept local instead of adding @tailwindcss/typography: one content type
+   * does not justify an extra dependency.
+   */
+  .prose-article {
+    @apply font-body text-gray-700 text-lg leading-relaxed;
+  }
+  .prose-article > * + * {
+    @apply mt-6;
+  }
+  .prose-article h2 {
+    @apply font-display text-3xl text-secondary mt-12 mb-4;
+  }
+  .prose-article h3 {
+    @apply font-body font-semibold text-xl text-secondary mt-8 mb-2;
+  }
+  .prose-article a {
+    @apply text-primary underline underline-offset-2 hover:text-secondary transition-colors;
+  }
+  .prose-article strong {
+    @apply font-semibold text-secondary;
+  }
+  .prose-article ul {
+    @apply list-disc pl-6 space-y-2;
+  }
+  .prose-article ol {
+    @apply list-decimal pl-6 space-y-2;
+  }
+  .prose-article li::marker {
+    @apply text-primary;
+  }
+  .prose-article blockquote {
+    @apply border-l-4 border-primary bg-silver/10 px-6 py-4 rounded-r-lg italic text-gray-600;
+  }
+  .prose-article hr {
+    @apply border-silver/40 my-10;
+  }
 }

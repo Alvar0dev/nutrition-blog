@@ -6,12 +6,12 @@ Documento operativo que establece la hoja de ruta paso por paso para la ejecuci�
 
 ## 1. Resumen de Etapas y Secuencia de Ejecución
 
-| Paso | Módulo | Objetivo principal | Archivos afectados | Verificación técnica |
-|---|---|---|---|---|
-| **Paso 1** | **Identidad & Redes** | Reemplazar URLs placeholder de redes sociales por los perfiles oficiales y sincronizar Schema.org. | `Footer.astro`, `BaseHead.astro` | Inspección visual en pie y validación de JSON-LD. |
-| **Paso 2** | **Blog Interno (Content Collections)** | Migrar artículos a Markdown local con `astro:content` y generar rutas dinámicas `/blog/[slug]`. | `src/content/`, `blog.astro`, `blog/[slug].astro`, `sitemap.xml.js` | `npm run build` genera 11 + N páginas con 100/100 Lighthouse. |
-| **Paso 3** | **Portal Clientes (Firebase Auth)** | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes. | `src/lib/firebase.js`, `AuthPlaceholder.jsx`, `login.astro`, `.env` | Flujo de autenticación cliente probado en local. |
-| **Paso 4** | **Despliegue a Producción (CDN)** | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché y dominio. | `_headers` / `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
+| Paso | Módulo | Estado | Objetivo principal | Archivos afectados | Verificación técnica |
+|---|---|---|---|---|---|
+| **Paso 1** | **Identidad & Redes** | Pendiente | Reemplazar URLs placeholder de redes sociales por los perfiles oficiales y sincronizar Schema.org. | `Footer.astro`, `BaseHead.astro` | Inspección visual en pie y validación de JSON-LD. |
+| **Paso 2** | **Blog Interno (Content Collections)** | **Completado (`v1.2.0`)** | Migrar artículos a Markdown local con Content Layer API (`src/content.config.ts`) y generar rutas dinámicas `/blog/[slug]`. | `src/content.config.ts`, `src/content/blog/`, `src/lib/posts.js`, `src/pages/blog/`, `sitemap.xml.js` | `npm run build` genera 20 páginas estáticas + `/sitemap.xml` con 19 URLs. |
+| **Paso 3** | **Portal Clientes (Firebase Auth)** | Pendiente | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes. | `src/lib/firebase.js`, `AuthPlaceholder.jsx`, `login.astro`, `.env` | Flujo de autenticación cliente probado en local. |
+| **Paso 4** | **Despliegue a Producción (CDN)** | Pendiente | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché y dominio. | `_headers` / `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
 
 ---
 
@@ -157,9 +157,9 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 ## 3. Checklist de Ejecución Rápida
 
 - [ ] **Paso 1:** URLs reales en `Footer.astro` y JSON-LD de `BaseHead.astro`.
-- [ ] **Paso 2.1:** Configurar `src/content/config.ts` y crear artículos Markdown.
-- [ ] **Paso 2.2:** Crear página `src/pages/blog/[slug].astro` y enlazar catálogo.
-- [ ] **Paso 2.3:** Integrar rutas del blog en `src/pages/sitemap.xml.js`.
+- [x] **Paso 2.1:** Configurar `src/content.config.ts` (Content Layer API de Astro 7 con `glob` loader) y crear los 9 artículos Markdown en `src/content/blog/*.md`.
+- [x] **Paso 2.2:** Crear plantilla `src/pages/blog/[slug].astro` con JSON-LD `BlogPosting` y enlazar catálogo en `src/pages/blog/index.astro`.
+- [x] **Paso 2.3:** Integrar rutas dinámicas del blog en `src/pages/sitemap.xml.js`.
 - [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js`.
 - [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React.
 - [ ] **Paso 4.1:** Crear archivo de cabeceras de caché (`_headers` / `vercel.json`).

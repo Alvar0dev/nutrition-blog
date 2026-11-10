@@ -4,6 +4,20 @@ Todos los cambios notables de este proyecto se documentan en este archivo siguie
 
 ---
 
+## [1.2.0] - 2026-11-10
+
+### Añadido
+- Colección de contenidos tipada `src/content.config.ts` usando la Content Layer API de Astro 7 (`glob` loader y esquema Zod).
+- 9 artículos propios en Markdown bajo `src/content/blog/*.md` con frontmatter validado, tiempo de lectura estimado y etiquetas temáticas.
+- Ruta dinámica `src/pages/blog/[slug].astro` con migas de pan accesibles, imagen hero en WebP (`1200×600`), datos estructurados Schema.org `BlogPosting` por artículo y bloque CTA de conversión directa (Google Forms y WhatsApp).
+- Módulo de utilidades `src/lib/posts.js` como fuente única de verdad para el filtrado de borradores, ordenación cronológica y cálculo de tiempo de lectura.
+
+### Optimizado
+- Catálogo `src/pages/blog/index.astro` migrado de enlaces externos a rutas internas `/blog/[slug]`, reteniendo el tráfico y la autoridad SEO dentro del dominio `nutricionalcoach.com`.
+- Generador `src/pages/sitemap.xml.js` ampliado para indexar automáticamente todos los artículos publicados con su fecha exacta `lastmod` (19 URLs públicas en total).
+
+---
+
 ## [1.1.0] - 2026-11-08
 
 ### Añadido

@@ -6,9 +6,10 @@ interface Props {
   image: string;
   pathname: string;
   noindex?: boolean;
+  ogType?: 'website' | 'article';
 }
 
-const { title, description, image, pathname, noindex = false } = Astro.props;
+const { title, description, image, pathname, noindex = false, ogType = 'website' } = Astro.props;
 const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
 const url = new URL(pathname, siteUrl).href;
 
@@ -64,7 +65,7 @@ const structuredData = {
 <link rel="sitemap" href="/sitemap.xml" />
 
 <!-- Open Graph -->
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:url" content={url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

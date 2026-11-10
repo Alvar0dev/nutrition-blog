@@ -27,7 +27,7 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
 | Área | Implementación | Referencia |
 |---|---|---|
 | **Renderizado** | Generación estática (SSG) con **Arquitectura de Islas**. El HTML se entrega pre-renderizado y solo se hidratan los componentes con estado o interactividad. | [`docs/ADR-001-migracion-arquitectura-islas.md`](docs/ADR-001-migracion-arquitectura-islas.md) |
-| **Enrutamiento** | Enrutamiento nativo basado en archivos bajo `src/pages/` con enlaces HTML estándar (`<a>`), sin dependencias de enrutamiento en cliente. | `src/pages/` |
+| **Enrutamiento y Contenidos** | Enrutamiento nativo basado en archivos bajo `src/pages/` y artículos gestionados con **Astro Content Layer API** (`src/content.config.ts` + Markdown tipado con Zod). | `src/pages/`, `src/content/blog/` |
 | **Imágenes (`astro:assets`)** | Todas las imágenes locales y remotas (`images.pexels.com`) se redimensionan y codifican a **WebP** en tiempo de compilación con `width` y `height` explícitos (CLS ≈ 0). | [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md) |
 | **Tipografías locales** | `Poppins` (`400`, `600`, `700`) y `Permanent Marker` auto-hospedadas mediante `@fontsource` en `/_astro/*.woff2` (`font-display: swap`), con cero peticiones externas a Google Fonts. | [`src/styles/global.css`](src/styles/global.css) |
 | **SEO y Datos Estructurados** | `<html lang="es">`, URLs canónicas, Open Graph (`es_ES`), Twitter Cards, Schema.org JSON-LD (`HealthAndBeautyBusiness` + `Person`), `sitemap.xml` dinámico y `robots.txt`. | [`src/components/BaseHead.astro`](src/components/BaseHead.astro) |
@@ -51,7 +51,12 @@ nutrition-blog/
 │   ├── favicon.svg
 │   └── robots.txt
 └── src/
+    ├── content.config.ts            # Colección de contenidos (Astro 7 Content Layer + Zod)
     ├── assets/                      # Activos gráficos originales procesados por astro:assets
+    ├── content/
+    │   └── blog/                    # 9 artículos de divulgación nutricional en Markdown
+    ├── lib/
+    │   └── posts.js                 # Fuente única de verdad (filtrado, ordenación y tiempo de lectura)
     ├── components/
     │   ├── BaseHead.astro           # Metadatos SEO, JSON-LD, canonical, Open Graph y Twitter Cards
     │   ├── Footer.astro             # Pie de página estático con logotipo WebP y contacto
@@ -63,13 +68,13 @@ nutrition-blog/
     │   └── Layout.astro             # Layout maestro con <html lang="es"> y skip-to-content
     ├── pages/
     │   ├── index.astro              # Portada (Hero + resumen de servicios)
-    │   ├── blog.astro               # Artículos de nutrición
+    │   ├── blog/                    # Catálogo general (index.astro) y artículos dinámicos ([slug].astro)
     │   ├── contacto.astro           # Perfil profesional y formulario de contacto
     │   ├── login.astro              # Área de acceso de clientes (noindex)
-    │   ├── sitemap.xml.js           # Generador estático de Sitemap XML
+    │   ├── sitemap.xml.js           # Generador estático de Sitemap XML (19 URLs públicas)
     │   └── servicios/               # Catálogo general y 6 páginas de especialidad
     └── styles/
-        └── global.css               # Fuentes @fontsource y directivas de Tailwind CSS
+        └── global.css               # Fuentes @fontsource, estilos prose-article y Tailwind CSS
 ```
 
 ---

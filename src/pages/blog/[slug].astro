@@ -1,0 +1,139 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { getPublishedPosts, formatDate, getReadingTime } from '../../lib/posts.js';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, description, pubDate, updatedDate, category, image, imageAlt, author, tags } = post.data;
+
+const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
+const canonicalUrl = new URL(`/blog/${post.id}`, siteUrl).href;
+const readingTime = getReadingTime(post.body);
+
+// Social crawlers get a resized JPEG straight from the Pexels CDN instead of the multi-MB original.
+const ogImage = `${image}?auto=compress&cs=tinysrgb&w=1200&h=630&fit=crop`;
+
+const GOOGLE_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSdOwSxNXy-eett_h9o1fvvi47I_feumHtY-j6tQHu9h6ygXvw/viewform?pli=1';
+const WHATSAPP_URL = 'https://wa.me/34655397061';
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  image: ogImage,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  inLanguage: 'es-ES',
+  articleSection: category,
+  keywords: tags.join(', '),
+  mainEntityOfPage: canonicalUrl,
+  author: { '@type': 'Person', name: author },
+  publisher: { '@id': `${siteUrl.origin}/#organization` },
+};
+---
+
+<Layout title={`${title} | Blog Nutricional Coach`} description={description} image={ogImage} ogType="article">
+  <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <article class="bg-accent">
+    <header class="bg-secondary text-accent">
+      <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <nav aria-label="Ruta de navegación" class="mb-6 font-body text-sm text-gray-400">
+          <a href="/" class="hover:text-primary transition-colors">Inicio</a>
+          <span aria-hidden="true" class="mx-2">/</span>
+          <a href="/blog" class="hover:text-primary transition-colors">Blog</a>
+          <span aria-hidden="true" class="mx-2">/</span>
+          <span aria-current="page" class="text-silver">{category}</span>
+        </nav>
+        <span class="inline-block bg-primary text-accent px-3 py-1 rounded-lg font-body text-sm mb-4">{category}</span>
+        <h1 class="font-display text-4xl md:text-5xl text-silver mb-6">{title}</h1>
+        <p class="font-body text-gray-300 text-lg mb-6">{description}</p>
+        <p class="font-body text-sm text-gray-400">
+          Por <span class="text-accent">{author}</span>
+          <span aria-hidden="true" class="mx-2">·</span>
+          <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+          <span aria-hidden="true" class="mx-2">·</span>
+          {readingTime} min de lectura
+        </p>
+      </div>
+    </header>
+
+    <div class="container mx-auto px-4 max-w-4xl -mt-2">
+      <div class="relative aspect-[2/1] overflow-hidden rounded-xl shadow-lg mt-10">
+        <Image
+          src={image}
+          alt={imageAlt}
+          width={1200}
+          height={600}
+          format="webp"
+          quality={80}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+
+    <div class="container mx-auto px-4 max-w-3xl py-12">
+      <div class="prose-article">
+        <Content />
+      </div>
+
+      {updatedDate && (
+        <p class="mt-10 font-body text-sm text-gray-500">
+          Última actualización: <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
+        </p>
+      )}
+
+      {tags.length > 0 && (
+        <ul class="mt-8 flex flex-wrap gap-2" aria-label="Etiquetas del artículo">
+          {tags.map((tag) => (
+            <li class="bg-silver/20 text-secondary px-3 py-1 rounded-full font-body text-sm">#{tag}</li>
+          ))}
+        </ul>
+      )}
+
+      <aside class="mt-12 bg-secondary text-accent rounded-xl p-8 text-center shadow-lg" aria-labelledby="cta-heading">
+        <h2 id="cta-heading" class="font-display text-3xl text-silver mb-4">¿QUIERES APLICARLO A TU CASO?</h2>
+        <p class="font-body text-gray-300 mb-6">
+          Cada cuerpo y cada objetivo son distintos. Te ayudo a convertir esta información en un plan hecho a tu medida.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href={GOOGLE_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-block bg-primary text-accent px-8 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+          >
+            EMPIEZA TU VALORACIÓN
+          </a>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-block bg-accent text-secondary px-8 py-3 rounded-lg font-display hover:bg-silver transition-colors"
+          >
+            ESCRÍBEME POR WHATSAPP
+          </a>
+        </div>
+      </aside>
+
+      <div class="mt-10 text-center">
+        <a href="/blog" class="font-display text-primary hover:text-secondary transition-colors">← VOLVER AL BLOG</a>
+      </div>
+    </div>
+  </article>
+</Layout>

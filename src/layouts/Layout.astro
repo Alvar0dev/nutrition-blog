@@ -14,6 +14,8 @@ interface Props {
   image?: ImageMetadata | string;
   pathname?: string;
   noindex?: boolean;
+  /** Open Graph type: `website` for regular pages, `article` for blog posts. */
+  ogType?: 'website' | 'article';
 }
 
 const {
@@ -22,6 +24,7 @@ const {
   image = defaultOgImage,
   pathname = Astro.url.pathname,
   noindex = false,
+  ogType = 'website',
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL('https://nutricionalcoach.com');
@@ -37,7 +40,10 @@ const ogImage = new URL(imageSrc, siteUrl).href;
       image={ogImage}
       pathname={pathname}
       noindex={noindex}
+      ogType={ogType}
     />
+    <!-- Page-specific head content (e.g. per-article JSON-LD) -->
+    <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
     <a
