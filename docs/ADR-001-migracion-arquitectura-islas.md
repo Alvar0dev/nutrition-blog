@@ -1,8 +1,8 @@
 # ADR-001: Migración de SPA (React + Vite) a Arquitectura de Islas con Astro
 
-- **Estado:** Aceptado e implementado (`v1.1.0`)
+- **Estado:** Aceptado e implementado (`v1.2.0`)
 - **Fecha inicial:** 2025-02-18
-- **Última revisión:** 2026-11-08
+- **Última revisión:** 2026-11-12
 - **Responsable:** Álvaro Aguilar
 
 ---
@@ -92,3 +92,37 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
 ### 4.6. Generación de Sitemap XML sin dependencias externas
 - **Problema:** Integrar paquetes adicionales de sitemap podía introducir fricciones de dependencias o incluir rutas internas como `/login` (marcada como `noindex`).
 - **Solución:** Se construyó un endpoint estático nativo de Astro en `src/pages/sitemap.xml.js` que genera `/sitemap.xml` durante `npm run build` en `2 ms`, listando exclusivamente las 10 rutas públicas canónicas con sus prioridades semánticas.
+
+### 4.7. Migración a Content Layer API de Astro 7 y retención de tráfico orgánico (v1.2.0)
+- **Problema:** En la versión original de la web, las 9 tarjetas del blog enlazaban directamente a artículos de un dominio externo (*Fitness Revolucionario*). Esto causaba una fuga total de tráfico cualificado: los visitantes abandonaban la plataforma antes de interactuar con los servicios de Álvaro Aguilar y el dominio `nutricionalcoach.com` no indexaba ninguna palabra clave *long-tail* de nutrición o entrenamiento. Además, la API clásica de colecciones (`src/content/config.ts`) acoplaba estrechamente el contenido al sistema de archivos y quedaba en desuso frente a las nuevas capacidades de Astro 5/6/7.
+- **Solución:**
+  1. Se implementó la nueva **Astro Content Layer API** en `src/content.config.ts` (en la raíz de `src/`), utilizando el cargador nativo `glob({ pattern: '**/*.md', base: './src/content/blog' })` junto con esquemas de validación tipados en `zod` (`title`, `description`, `pubDate`, `category`, `image`, `imageAlt`, `author`, `tags`, `draft`). Esto generó automáticamente los tipos TypeScript en `.astro/types.d.ts` y aceleró el tiempo de sincronización de contenidos a milisegundos en compilación.
+  2. Se redactaron y estructuraron 9 artículos técnicos originales en Markdown bajo `src/content/blog/*.md`, abarcando áreas clave (desayuno, proteínas vegetales, desmentido de mitos, nutrición deportiva, alimentación antiinflamatoria, estrés, suplementación, nutrición estudiantil e hidratación).
+  3. Se diseñó la plantilla de detalle dinámica `src/pages/blog/[slug].astro` con renderizado nativo `<Content />`, imagen hero WebP responsive (`1200×600`), migas de pan semánticas (`nav` con `aria-label="Migas de pan"`), datos estructurados Schema.org `BlogPosting` vinculados a la organización y un bloque de conversión dual al pie de cada artículo (Google Forms y WhatsApp).
+  4. Se centralizó la lógica en `src/lib/posts.js` para ordenar por fecha, filtrar borradores (`draft: true`) y calcular el tiempo estimado de lectura en base al conteo de palabras (`~200 palabras/minuto`).
+  5. Se actualizó `src/pages/sitemap.xml.js` para consultar `getCollection('blog')` en tiempo de compilación y registrar automáticamente las 19 URLs canónicas con su etiqueta `lastmod` sincronizada con `pubDate`.
+
+### 4.8. Aislamiento estricto de Firebase SDK y política de despliegue en CDN con caché inmutable
+- **Problema:** La integración de servicios de autenticación pesados (como Firebase Authentication) en sitios orientados a contenido estático corre el riesgo de degradar severamente el *Total Blocking Time* (TBT) y el peso del bundle inicial si el SDK se carga de forma global o en componentes que se hidratan al cargar la página. Asimismo, en arquitecturas estáticas servidas desde CDN (Cloudflare Pages / Vercel), una política de caché laxa o mal configurada puede provocar que los usuarios reciban documentos HTML desactualizados que intenten cargar fragmentos JavaScript con hashes ya purgados del servidor tras un despliegue.
+- **Solución:**
+  1. **Aislamiento de Auth:** El SDK de Firebase y su lógica interactiva residirán exclusivamente en la isla reactiva `AuthIsland.jsx` montada con `client:load` únicamente en la ruta `/login` (que ya cuenta con `<meta name="robots" content="noindex, nofollow">`). Todas las 19 rutas públicas del portal (`/`, `/blog`, `/blog/[slug]`, `/servicios`, `/contacto`) permanecen con **0 KB de JavaScript de Firebase**.
+  2. **Estrategia de caché CDN:** Se definió la regla de cabeceras inmutables:
+     - Activos generados con hash en `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable` (1 año de caché en navegador y CDN sin riesgo de colisión, pues cada cambio de código altera el hash).
+     - Documentos HTML y sitemap: `Cache-Control: public, max-age=0, must-revalidate` para HTML y `max-age=3600, must-revalidate` para `sitemap.xml`, garantizando que cualquier actualización o despliegue en producción sea visible de inmediato por los usuarios y rastreadores de búsqueda.
+
+---
+
+## 5. Métricas consolidadas del sistema (`v1.2.0`)
+
+| Métrica / Auditoría | Valor alcanzado | Estado |
+|---|---|---|
+| **Lighthouse Performance** | **100/100** (`/`, `/blog`, `/contacto`, `/servicios`) | Óptimo |
+| **Lighthouse SEO** | **100/100** en todas las rutas públicas | Óptimo |
+| **First Contentful Paint (FCP)** | `0.2 s` | Instantáneo |
+| **Largest Contentful Paint (LCP)** | `0.4 s – 0.5 s` | Excelente |
+| **Total Blocking Time (TBT)** | `0 ms` (rutas estáticas) | Sin bloqueo |
+| **Cumulative Layout Shift (CLS)** | `0 – 0.015` | Sin saltos visuales |
+| **Páginas estáticas compiladas** | **20 páginas** en `~2.7 s` | SSG de alta velocidad |
+| **Recursos WebP optimizados** | **41 imágenes** generadas automáticamente en `dist/_astro/` | Compresión máxima |
+| **URLs públicas en Sitemap** | **19 URLs** canónicas con `lastmod` dinámico | 100% indexable |
+

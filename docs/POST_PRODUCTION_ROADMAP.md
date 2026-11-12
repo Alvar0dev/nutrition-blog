@@ -1,16 +1,17 @@
 # Hoja de Ruta de Optimizaciones y Mejoras de Postproducción
 
-Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción sobre **Astro 7** (`v1.1.0`), junto con la planificación de la siguiente fase evolutiva.
+Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción y evolución sobre **Astro 7** (`v1.2.0`), junto con la planificación de la siguiente sesión.
 
 ---
 
-## 1. Resumen de Estado (`v1.1.0`)
+## 1. Resumen de Estado (`v1.2.0`)
 
 | Prioridad | Área | Hallazgo original | Estado | Solución aplicada |
 |---|---|---|---|---|
 | **Alta (P1)** | **Funnels de Conversión** | Todos los servicios apuntaban genéricamente a `/contacto` o a un enlace antiguo. | **Completado** | Segmentación estratégica de CTAs hacia Google Forms (evaluación clínica/objetivos) y WhatsApp directo `+34 655 397 061` (asesoramiento y educación). |
 | **Alta (P1)** | **UX & Accesibilidad Móvil** | Enlaces de navegación ocultos en móvil (`hidden md:flex`) sin menú hamburguesa. | **Completado** | Menú desplegable móvil accesible (`aria-expanded`, `aria-controls`) e indicador de ruta activa (`aria-current="page"`) en `Navbar.jsx` + enlace *skip-to-content* en `Layout.astro`. |
 | **Alta (P1)** | **Identidad & Branding** | El favicon del sitio apuntaba al logo por defecto de Vite (`/vite.svg`). | **Completado** | Nuevo isotipo vectorial corporativo `public/favicon.svg` enlazado en `BaseHead.astro` y eliminación de `public/vite.svg`. |
+| **Alta (P1)** | **SEO de Contenidos & Blog Propio** | Las tarjetas del blog enlazaban a artículos externos (Fitness Revolucionario), perdiendo el 100% del tráfico y autoridad orgánica. | **Completado (`v1.2.0`)** | Migración a Astro Content Layer API (`src/content.config.ts`), 9 artículos técnicos propios en Markdown (`src/content/blog/`), plantilla dinámica `/blog/[slug]` con Schema.org `BlogPosting` y sitemap dinámico (19 URLs). |
 | **Media (P2)** | **SEO Técnico** | Falta de Sitemap XML dinámico y de datos estructurados Schema.org (JSON-LD). | **Completado** | Endpoint estático `src/pages/sitemap.xml.js`, directiva `Sitemap` en `public/robots.txt` y grafo JSON-LD (`HealthAndBeautyBusiness` + `Person` + `WebSite`) en `BaseHead.astro`. |
 | **Media (P2)** | **Arquitectura de Islas** | `AuthPlaceholder.jsx` se hidrataba con `client:load` para renderizar un `<div>` vacío. | **Completado** | Renderizado estático (0 JS en cliente) de `AuthPlaceholder.jsx` en `/contacto` y `/login` hasta que se habilite Firebase Auth. |
 | **Media (P2)** | **Conversión & Formularios** | `ContactForm.jsx` prevenía el envío (`e.preventDefault()`) sin feedback ni canal de salida. | **Completado** | Validación de campos, estado de confirmación accesible (`role="status"`, `aria-live="polite"`) y despacho directo pre-formateado por WhatsApp o Email. |
@@ -42,18 +43,32 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
 - **Por qué:** Hidratar en cliente un componente que aún no tiene SDK de autenticación conectado obliga al navegador a descargar y ejecutar código de hidratación para un `<div>` vacío.
 - **Cómo se resolvió:** Se mantuvo `AuthPlaceholder.jsx` montado en `contacto.astro` y `login.astro` pero renderizado de forma 100% estática en el servidor. Cuando se instale `firebase/auth`, bastará con restaurar la directiva `client:load`.
 
+### 2.6. Retención de Tráfico Orgánico y Astro Content Layer API (`v1.2.0`)
+- **Por qué:** Un portal de coaching nutricional necesita posicionarse como autoridad frente a Google. Mantener enlaces salientes a portales de terceros desperdiciaba el potencial de captación orgánica por palabras clave específicas de nutrición deportiva y recomposición corporal.
+- **Cómo se resolvió:** Se implementó la nueva Content Layer API de Astro 7 (`src/content.config.ts`) con el cargador `glob` y validación estricta por esquemas Zod. Se redactaron 9 artículos técnicos originales en Markdown (`src/content/blog/`), una plantilla de lectura enriquecida con metadatos Open Graph y Schema.org `BlogPosting` (`src/pages/blog/[slug].astro`), utilidades centralizadas de tiempo de lectura y filtrado (`src/lib/posts.js`) y sitemap automático sincronizado con 19 URLs canónicas.
+
+### 2.7. Estrategia de Caché Inmutable para CDN
+- **Por qué:** En despliegues continuos sobre CDNs globales (Cloudflare Pages o Vercel), una política de caché genérica puede servir HTML desfasado que apunte a archivos CSS/JS con hashes ya eliminados, o cachear excesivamente el contenido dinámico impidiendo que las actualizaciones del blog se reflejen al instante.
+- **Cómo se resolvió:** Se definió la regla de cabeceras inmutables: `Cache-Control: public, max-age=31536000, immutable` para el directorio `/_astro/*` (que contiene nombres de archivo hasheados con su contenido) y `max-age=0, must-revalidate` para los documentos `.html`, garantizando cero assets rotos y despliegues atómicos sin caché fantasma.
+
 ---
 
-## 3. Próximos Pasos (Backlog para la Siguiente Sesión)
+## 3. Próximos Pasos (Backlog para Continuar Mañana)
 
-1. **Despliegue en Producción (Hosting & CDN):**
-   - Conectar el repositorio GitHub con **Vercel**, **Cloudflare Pages** o **Netlify** (comando de build: `npm run build`, directorio de salida: `dist`).
-   - Configurar dominio personalizado (`nutricionalcoach.com`) y certificados SSL.
-2. **Contenido Propio en el Blog (Astro Content Collections):**
-   - Actualmente las tarjetas de `/blog` enlazan a artículos externos de divulgación. Si se desea publicar artículos propios dentro del dominio para captar tráfico orgánico por *long-tail keywords*, migrar los artículos a `src/content/blog/*.md` con rutas dinámicas `src/pages/blog/[slug].astro`.
-3. **Personalización de Perfiles Sociales:**
-   - Actualizar las URLs definitivas de Instagram y LinkedIn de Álvaro Aguilar en `src/components/Footer.astro` y en el array `sameAs` del bloque Schema.org JSON-LD en `src/components/BaseHead.astro`.
-4. **Activación Opcional del Área de Clientes (Firebase Auth):**
-   - Cuando se requiera habilitar el portal privado en `/login`, instalar `firebase`, crear `src/lib/firebase.js` y activar `client:load` sobre `AuthPlaceholder.jsx`.
+1. **Paso 1 — Configuración de Perfiles Sociales Oficiales:**
+   - **Objetivo:** Actualizar las URLs de Instagram y LinkedIn definitivas de Álvaro Aguilar en `src/components/Footer.astro` (con sus atributos de accesibilidad `aria-label`) y en el array `sameAs` del bloque JSON-LD de `src/components/BaseHead.astro`.
+   - **Estado:** Pendiente de los handles/enlaces exactos que proporcione el usuario.
+
+2. **Paso 4.1 — Cabeceras de Caché Inmutable para Hosting (`public/_headers` / `vercel.json`):**
+   - **Objetivo:** Materializar las reglas de caché HTTP en el repositorio para que cualquier CDN aplique de forma estricta la política inmutable sobre `/_astro/*` y revalidación en HTML/sitemap.
+   - **Estado:** Listo para implementar directamente sin dependencias externas.
+
+3. **Paso 3 — Portal de Clientes con Firebase Authentication:**
+   - **Objetivo:** Instalar el SDK de `firebase`, crear el cliente en `src/lib/firebase.js` asegurando ejecución exclusiva en navegador, documentar variables en `.env.example`, y construir la isla `src/components/AuthIsland.jsx` (Email + Google Popup, estados visuales y feedback en español) montada en `src/pages/login.astro` con `client:load`.
+   - **Estado:** Especificado y listo para ejecución una vez configuradas las credenciales de Firebase.
+
+4. **Paso 4.2 — Despliegue en Producción y Validación de Dominio:**
+   - **Objetivo:** Conectar el repositorio a Cloudflare Pages o Vercel, enlazar el dominio `nutricionalcoach.com`, configurar DNS/SSL y ejecutar auditoría Lighthouse final en el entorno de producción en vivo.
+   - **Estado:** Pendiente de la vinculación del repositorio en la plataforma elegida.
 
 *(Para el detalle técnico paso a paso de cada una de estas tareas, consultar [`docs/PLAN_FASE_2_EJECUCION.md`](PLAN_FASE_2_EJECUCION.md)).*

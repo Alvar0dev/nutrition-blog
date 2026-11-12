@@ -38,47 +38,22 @@ Actualmente los botones de Instagram y LinkedIn en `src/components/Footer.astro`
 
 ---
 
-### Paso 2: Migración del Blog a Astro Content Collections (SEO Orgánico Propio)
+### Paso 2: Migración del Blog a Astro Content Collections (SEO Orgánico Propio) — Completado (`v1.2.0`)
 
 #### 2.1. Contexto y Justificación
-Actualmente, las 9 tarjetas en `src/pages/blog.astro` enlazan externamente a artículos de Fitness Revolucionario. Para captar tráfico orgánico cualificado mediante palabras clave de nutrición y rendimiento deportivo, los artículos deben alojarse dentro del propio dominio `nutricionalcoach.com` utilizando **Astro Content Collections** con validación por esquemas Zod.
+Originalmente, las 9 tarjetas en `src/pages/blog.astro` enlazaban externamente a artículos de Fitness Revolucionario. Para captar tráfico orgánico cualificado mediante palabras clave de nutrición y rendimiento deportivo, los artículos se migraron para alojarse dentro del propio dominio `nutricionalcoach.com` utilizando **Astro Content Layer API** (`src/content.config.ts`) con validación por esquemas Zod.
 
-#### 2.2. Tareas de Implementación
-1. **Definir la colección de contenido (`src/content/config.ts`):**
-   ```typescript
-   import { defineCollection, z } from 'astro:content';
-
-   const blog = defineCollection({
-     type: 'content',
-     schema: z.object({
-       title: z.string(),
-       description: z.string(),
-       pubDate: z.date(),
-       category: z.string(),
-       image: z.string(),
-       imageAlt: z.string().default('Artículo de nutrición'),
-       author: z.string().default('Álvaro Aguilar'),
-       tags: z.array(z.string()).default([]),
-     }),
-   });
-
-   export const collections = { blog };
-   ```
-2. **Crear artículos iniciales en Markdown (`src/content/blog/*.md`):**
-   - Crear los archivos Markdown para los artículos iniciales (e.g. `la-importancia-del-desayuno.md`, `proteinas-vegetales.md`, `nutricion-para-deportistas.md`) con su frontmatter tipado y contenido divulgativo estructurado.
-3. **Crear la plantilla de detalle dinámica (`src/pages/blog/[slug].astro`):**
-   - Utilizar `getStaticPaths()` para consultar todos los posts mediante `getCollection('blog')`.
-   - Renderizar el contenido con `<Content />` del post.
-   - Configurar metadatos específicos en `Layout.astro` (título, descripción, imagen Open Graph y artículo Schema.org tipo `BlogPosting`).
-   - Añadir botón de retorno al catálogo de blog y CTA de conversión al final del artículo.
-4. **Refactorizar el catálogo general (`src/pages/blog.astro`):**
-   - Consultar los posts con `await getCollection('blog')` ordenados por fecha descendente.
-   - Enlazar cada tarjeta a `/blog/${post.slug}`.
-5. **Actualizar el generador de Sitemap (`src/pages/sitemap.xml.js`):**
-   - Importar `getCollection('blog')` en `sitemap.xml.js` para inyectar automáticamente cada URL de artículo en el sitemap estático con `priority="0.8"` y `changefreq="monthly"`.
-6. **Verificación:**
-   - Ejecutar `npm run build` y comprobar que se generan todas las páginas estáticas `/blog/[slug]/index.html`.
-   - Verificar Lighthouse en un artículo individual (objetivo: 100/100).
+#### 2.2. Implementación realizada
+1. **Definición de la colección (`src/content.config.ts`):**
+   - Configurado en la raíz de `src/` con el cargador `glob` de Astro 7 y validación estricta de frontmatter (`zod`).
+2. **Redacción de 9 artículos técnicos (`src/content/blog/*.md`):**
+   - Artículos divulgativos completos en Markdown con metadatos estructurados (`title`, `description`, `pubDate`, `category`, `image`, `imageAlt`, `tags`).
+3. **Plantilla dinámica (`src/pages/blog/[slug].astro`):**
+   - Generación estática vía `getCollection('blog')`, renderizado con `<Content />`, imagen WebP optimizada, migas de pan y datos Schema.org `BlogPosting`.
+4. **Catálogo (`src/pages/blog/index.astro`) y utilidades (`src/lib/posts.js`):**
+   - Listado cronológico con cálculo de tiempo de lectura y enlaces internos `/blog/[slug]`.
+5. **Sitemap automático (`src/pages/sitemap.xml.js`):**
+   - Generación en 2ms de 19 URLs canónicas con `lastmod` dinámico.
 
 ---
 
@@ -154,13 +129,48 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 
 ---
 
-## 3. Checklist de Ejecución Rápida
+## 3. Checklist de Ejecución y Estado Actual
 
-- [ ] **Paso 1:** URLs reales en `Footer.astro` y JSON-LD de `BaseHead.astro`.
+- [ ] **Paso 1:** URLs reales en `Footer.astro` y JSON-LD de `BaseHead.astro` *(Bloqueado: esperando enlaces oficiales de Álvaro)*.
 - [x] **Paso 2.1:** Configurar `src/content.config.ts` (Content Layer API de Astro 7 con `glob` loader) y crear los 9 artículos Markdown en `src/content/blog/*.md`.
 - [x] **Paso 2.2:** Crear plantilla `src/pages/blog/[slug].astro` con JSON-LD `BlogPosting` y enlazar catálogo en `src/pages/blog/index.astro`.
 - [x] **Paso 2.3:** Integrar rutas dinámicas del blog en `src/pages/sitemap.xml.js`.
-- [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js`.
-- [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React.
-- [ ] **Paso 4.1:** Crear archivo de cabeceras de caché (`_headers` / `vercel.json`).
-- [ ] **Paso 4.2:** Conectar repositorio a la plataforma de hosting y validar en vivo.
+- [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js` con variables de entorno documentadas en `.env.example`.
+- [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React `AuthIsland.jsx` e integrarla en `src/pages/login.astro`.
+- [ ] **Paso 4.1:** Crear archivo de cabeceras de caché inmutable (`public/_headers` / `vercel.json`).
+- [ ] **Paso 4.2:** Conectar repositorio a la plataforma de hosting (Cloudflare Pages o Vercel), enlazar dominio y validar en vivo.
+
+---
+
+## 4. Dificultades Técnicas Encontradas y Justificación Arquitectónica
+
+1. **Gestión de Identidad y Riesgo de Enlaces Rotos (Paso 1):**
+   - *Dificultad:* En la plantilla inicial los botones de redes sociales apuntaban a las raíces de `instagram.com` y `linkedin.com`. Para evitar introducir enlaces provisionales o handles incorrectos en el pie de página y en el grafo de autoridad Schema.org (`sameAs`), se decidió bloquear esta tarea hasta contar con los perfiles definitivos del profesional.
+   - *Por qué se construyó así:* El marcado Schema.org alimenta directamente la entidad de negocio local en Google. Vincular una URL equivocada o un perfil no verificado daña la reputación del dominio y la indexación como especialista acreditado.
+
+2. **Migración a la nueva Content Layer API en lugar del API heredado (Paso 2):**
+   - *Dificultad:* Astro 5/6/7 reemplazó el antiguo `src/content/config.ts` por `src/content.config.ts` utilizando la API Content Layer con cargadores (`glob`). La documentación heredada sugería la estructura antigua que no aprovecha la sincronización incremental de contenidos ni la tipificación automática de TypeScript en compilación.
+   - *Por qué se construyó así:* La Content Layer API compila los contenidos en milisegundos y desacopla la carga de datos del renderizado, permitiendo que la compilación de 20 páginas y 41 imágenes WebP tarde menos de 3 segundos en total.
+
+3. **Aislamiento del SDK de Firebase para Proteger Métricas Web Vitals (Paso 3):**
+   - *Dificultad:* La librería cliente de Firebase añade decenas de kilobytes de JavaScript que, de cargarse en el layout principal o en páginas de contenido, arruinarían el 100/100 de Lighthouse y el TBT de `0 ms`.
+   - *Por qué se construyó así:* Se diseñó un aislamiento estricto donde el SDK de Firebase y la isla `AuthIsland.jsx` se confinan exclusivamente a la ruta `/login`, la cual además cuenta con directiva `noindex, nofollow`. Las 19 páginas públicas del portal se mantienen con 0 KB de Firebase.
+
+4. **Políticas de Caché en Hosting Estático (Paso 4):**
+   - *Dificultad:* Los despliegues continuos en CDNs globales pueden sufrir desincronización de activos si el navegador almacena en caché archivos HTML que referencian fragmentos CSS/JS de un build anterior ya purgado.
+   - *Por qué se construyó así:* Se establecen cabeceras de caché con estrategia inmutable de 1 año (`max-age=31536000, immutable`) únicamente para los bundles con hash en `/_astro/*`, combinadas con revalidación inmediata (`max-age=0, must-revalidate`) para los documentos HTML y sitemap.
+
+---
+
+## 5. Plan de Continuación para Mañana
+
+Para la próxima sesión de trabajo, el orden técnico recomendado de ejecución es:
+
+1. **Prioridad 1 — Cabeceras de Caché (Paso 4.1):**
+   - Crear `public/_headers` (para Cloudflare Pages) y `vercel.json` con las directivas de caché inmutable y revalidación inmediata. Tarea autocontenida de ~10 minutos que deja el proyecto blindado para cualquier CDN.
+2. **Prioridad 2 — Identidad Oficial (Paso 1):**
+   - Con los perfiles de Instagram y LinkedIn proporcionados por el usuario, actualizar `Footer.astro` y el array `sameAs` en `BaseHead.astro`.
+3. **Prioridad 3 — Portal de Clientes con Firebase Auth (Paso 3):**
+   - Instalar `firebase`, configurar `src/lib/firebase.js`, crear `.env.example`, desarrollar `AuthIsland.jsx` y montarlo con `client:load` en `/login`.
+4. **Prioridad 4 — Despliegue en Producción (Paso 4.2):**
+   - Conectar el repositorio de GitHub con Cloudflare Pages o Vercel, configurar el dominio `nutricionalcoach.com` y validar SSL y métricas en vivo.
