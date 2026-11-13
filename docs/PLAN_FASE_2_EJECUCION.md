@@ -11,7 +11,7 @@ Documento operativo que establece la hoja de ruta paso por paso para la ejecuci�
 | **Paso 1** | **Identidad & Redes** | Pendiente | Reemplazar URLs placeholder de redes sociales por los perfiles oficiales y sincronizar Schema.org. | `Footer.astro`, `BaseHead.astro` | Inspección visual en pie y validación de JSON-LD. |
 | **Paso 2** | **Blog Interno (Content Collections)** | **Completado (`v1.2.0`)** | Migrar artículos a Markdown local con Content Layer API (`src/content.config.ts`) y generar rutas dinámicas `/blog/[slug]`. | `src/content.config.ts`, `src/content/blog/`, `src/lib/posts.js`, `src/pages/blog/`, `sitemap.xml.js` | `npm run build` genera 20 páginas estáticas + `/sitemap.xml` con 19 URLs. |
 | **Paso 3** | **Portal Clientes (Firebase Auth)** | Pendiente | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes. | `src/lib/firebase.js`, `AuthPlaceholder.jsx`, `login.astro`, `.env` | Flujo de autenticación cliente probado en local. |
-| **Paso 4** | **Despliegue a Producción (CDN)** | Pendiente | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché y dominio. | `_headers` / `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
+| **Paso 4** | **Despliegue a Producción (CDN)** | En progreso (4.1 listo) | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché (`public/_headers`, `vercel.json`) y dominio. | `public/_headers`, `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
 
 ---
 
@@ -137,7 +137,7 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 - [x] **Paso 2.3:** Integrar rutas dinámicas del blog en `src/pages/sitemap.xml.js`.
 - [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js` con variables de entorno documentadas en `.env.example`.
 - [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React `AuthIsland.jsx` e integrarla en `src/pages/login.astro`.
-- [ ] **Paso 4.1:** Crear archivo de cabeceras de caché inmutable (`public/_headers` / `vercel.json`).
+- [x] **Paso 4.1:** Crear archivo de cabeceras de caché inmutable (`public/_headers` y `vercel.json`).
 - [ ] **Paso 4.2:** Conectar repositorio a la plataforma de hosting (Cloudflare Pages o Vercel), enlazar dominio y validar en vivo.
 
 ---
@@ -156,21 +156,26 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
    - *Dificultad:* La librería cliente de Firebase añade decenas de kilobytes de JavaScript que, de cargarse en el layout principal o en páginas de contenido, arruinarían el 100/100 de Lighthouse y el TBT de `0 ms`.
    - *Por qué se construyó así:* Se diseñó un aislamiento estricto donde el SDK de Firebase y la isla `AuthIsland.jsx` se confinan exclusivamente a la ruta `/login`, la cual además cuenta con directiva `noindex, nofollow`. Las 19 páginas públicas del portal se mantienen con 0 KB de Firebase.
 
-4. **Políticas de Caché en Hosting Estático (Paso 4):**
-   - *Dificultad:* Los despliegues continuos en CDNs globales pueden sufrir desincronización de activos si el navegador almacena en caché archivos HTML que referencian fragmentos CSS/JS de un build anterior ya purgado.
-   - *Por qué se construyó así:* Se establecen cabeceras de caché con estrategia inmutable de 1 año (`max-age=31536000, immutable`) únicamente para los bundles con hash en `/_astro/*`, combinadas con revalidación inmediata (`max-age=0, must-revalidate`) para los documentos HTML y sitemap.
+4. **Políticas de Caché en Hosting Estático y Portabilidad Multi-CDN (Paso 4.1 — Completado en `v1.2.1`):**
+   - *Dificultad 1 (Desincronización tras despliegues):* Los despliegues continuos en CDNs globales pueden sufrir desincronización de activos (*stale HTML / broken chunks*) si el navegador almacena en caché archivos HTML que referencian fragmentos CSS/JS/WebP de un build anterior cuyos hashes ya fueron reemplazados.
+   - *Dificultad 2 (Divergencia de ubicación y sintaxis entre proveedores CDN):* Cloudflare Pages lee un archivo plano llamado `_headers` ubicado dentro de la carpeta final de publicación (`dist/_headers`) con comodines tipo glob (`/_astro/*`, `/*.html`), mientras que Vercel ignora `_headers` y requiere un archivo `vercel.json` en la raíz del repositorio con expresiones regulares PCRE (`/_astro/(.*)`, `/(.*)\\.html`).
+   - *Por qué se construyó así:*
+     1. Colocar `public/_headers` hace que el pipeline de Astro lo copie de forma transparente a `dist/_headers` en cada compilación para Cloudflare Pages.
+     2. Mantener `vercel.json` en la raíz con validación `$schema` asegura compatibilidad inmediata con Vercel sin reescribir configuración si se cambia de proveedor.
+     3. Aplicar `max-age=31536000, immutable` exclusivamente a `/_astro/*` elimina peticiones repetidas de fuentes WOFF2, imágenes WebP y bundles de islas, mientras `max-age=0, must-revalidate` en HTML y `max-age=3600, must-revalidate` en `/sitemap.xml` garantizan despliegues atómicos e indexación fresca.
 
 ---
 
 ## 5. Plan de Continuación para Mañana
 
-Para la próxima sesión de trabajo, el orden técnico recomendado de ejecución es:
+Con el **Paso 2** (Blog interno Content Layer) y el **Paso 4.1** (Cabeceras de caché CDN en `public/_headers` y `vercel.json`) ya completados y verificados en `v1.2.1`, el orden de ejecución para mañana queda estructurado en 3 bloques:
 
-1. **Prioridad 1 — Cabeceras de Caché (Paso 4.1):**
-   - Crear `public/_headers` (para Cloudflare Pages) y `vercel.json` con las directivas de caché inmutable y revalidación inmediata. Tarea autocontenida de ~10 minutos que deja el proyecto blindado para cualquier CDN.
-2. **Prioridad 2 — Identidad Oficial (Paso 1):**
-   - Con los perfiles de Instagram y LinkedIn proporcionados por el usuario, actualizar `Footer.astro` y el array `sameAs` en `BaseHead.astro`.
-3. **Prioridad 3 — Portal de Clientes con Firebase Auth (Paso 3):**
-   - Instalar `firebase`, configurar `src/lib/firebase.js`, crear `.env.example`, desarrollar `AuthIsland.jsx` y montarlo con `client:load` en `/login`.
-4. **Prioridad 4 — Despliegue en Producción (Paso 4.2):**
-   - Conectar el repositorio de GitHub con Cloudflare Pages o Vercel, configurar el dominio `nutricionalcoach.com` y validar SSL y métricas en vivo.
+1. **Prioridad 1 — Identidad Oficial y Marcado de Autoridad (Paso 1):**
+   - *Estado:* Bloqueado únicamente a la espera de las URLs definitivas de Instagram y LinkedIn de Álvaro Aguilar.
+   - *Acción:* Reemplazar los enlaces placeholder en `src/components/Footer.astro` (con `aria-label` descriptivos) y añadirlos al array `sameAs` del grafo JSON-LD en `src/components/BaseHead.astro`.
+2. **Prioridad 2 — Portal de Clientes con Firebase Auth (Paso 3):**
+   - *Estado:* Listo para implementar en código.
+   - *Acción:* Instalar `firebase`, configurar `src/lib/firebase.js` (aislado al navegador), crear `.env.example`, desarrollar la isla `src/components/AuthIsland.jsx` (acceso con Email/Contraseña y Google Popup, manejo de errores en español y cierre de sesión) y montarla con `client:load` exclusivamente en `src/pages/login.astro`.
+3. **Prioridad 3 — Despliegue en Producción y Dominio (Paso 4.2):**
+   - *Estado:* Listo para conectar (las cabeceras de caché `public/_headers` y `vercel.json` ya están en el repositorio).
+   - *Acción:* Vincular el repositorio `Alvar0dev/nutrition-blog` con Cloudflare Pages o Vercel, configurar los registros DNS de `nutricionalcoach.com`, activar SSL/HTTP3 y ejecutar la auditoría Lighthouse final sobre la URL pública de producción.

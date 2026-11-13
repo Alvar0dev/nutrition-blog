@@ -1,10 +1,10 @@
 # Hoja de Ruta de Optimizaciones y Mejoras de Postproducción
 
-Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción y evolución sobre **Astro 7** (`v1.2.0`), junto con la planificación de la siguiente sesión.
+Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción y evolución sobre **Astro 7** (`v1.2.1`), junto con la planificación de la siguiente sesión.
 
 ---
 
-## 1. Resumen de Estado (`v1.2.0`)
+## 1. Resumen de Estado (`v1.2.1`)
 
 | Prioridad | Área | Hallazgo original | Estado | Solución aplicada |
 |---|---|---|---|---|
@@ -16,6 +16,7 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
 | **Media (P2)** | **Arquitectura de Islas** | `AuthPlaceholder.jsx` se hidrataba con `client:load` para renderizar un `<div>` vacío. | **Completado** | Renderizado estático (0 JS en cliente) de `AuthPlaceholder.jsx` en `/contacto` y `/login` hasta que se habilite Firebase Auth. |
 | **Media (P2)** | **Conversión & Formularios** | `ContactForm.jsx` prevenía el envío (`e.preventDefault()`) sin feedback ni canal de salida. | **Completado** | Validación de campos, estado de confirmación accesible (`role="status"`, `aria-live="polite"`) y despacho directo pre-formateado por WhatsApp o Email. |
 | **Media (P2)** | **Pie de Página & Tipografía** | Logo duplicado en `Footer.astro`, salto de jerarquía `<h4>` y peso único 400 en Poppins. | **Completado** | Jerarquía semántica `<h2>` en `Footer.astro`, enlace directo a WhatsApp, eliminación de logo redundante e importación de pesos `400`, `600` y `700` de `@fontsource/poppins`. |
+| **Media (P2)** | **Caché CDN & Despliegue** | Sin reglas explícitas de caché HTTP para proteger activos con hash ni forzar revalidación de HTML tras cada deploy. | **Completado (`v1.2.1`)** | Configuración multi-CDN mediante `public/_headers` (Cloudflare Pages, emitido en `dist/_headers`) y `vercel.json` (Vercel) con caché inmutable de 1 año en `/_astro/*` y revalidación en HTML/sitemap. |
 | **Baja (P3)** | **Higiene de Dependencias** | Paquetes y activos huérfanos del boilerplate anterior (`@heroicons/react`, `react.svg`, etc.). | **Completado** | Limpieza de `package.json`, `eslint.config.js`, `tailwind.config.js` y eliminación de activos fantasma en `src/assets/`. |
 
 ---
@@ -47,9 +48,9 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
 - **Por qué:** Un portal de coaching nutricional necesita posicionarse como autoridad frente a Google. Mantener enlaces salientes a portales de terceros desperdiciaba el potencial de captación orgánica por palabras clave específicas de nutrición deportiva y recomposición corporal.
 - **Cómo se resolvió:** Se implementó la nueva Content Layer API de Astro 7 (`src/content.config.ts`) con el cargador `glob` y validación estricta por esquemas Zod. Se redactaron 9 artículos técnicos originales en Markdown (`src/content/blog/`), una plantilla de lectura enriquecida con metadatos Open Graph y Schema.org `BlogPosting` (`src/pages/blog/[slug].astro`), utilidades centralizadas de tiempo de lectura y filtrado (`src/lib/posts.js`) y sitemap automático sincronizado con 19 URLs canónicas.
 
-### 2.7. Estrategia de Caché Inmutable para CDN
-- **Por qué:** En despliegues continuos sobre CDNs globales (Cloudflare Pages o Vercel), una política de caché genérica puede servir HTML desfasado que apunte a archivos CSS/JS con hashes ya eliminados, o cachear excesivamente el contenido dinámico impidiendo que las actualizaciones del blog se reflejen al instante.
-- **Cómo se resolvió:** Se definió la regla de cabeceras inmutables: `Cache-Control: public, max-age=31536000, immutable` para el directorio `/_astro/*` (que contiene nombres de archivo hasheados con su contenido) y `max-age=0, must-revalidate` para los documentos `.html`, garantizando cero assets rotos y despliegues atómicos sin caché fantasma.
+### 2.7. Estrategia de Caché Inmutable y Portabilidad Multi-CDN (`v1.2.1`)
+- **Por qué:** En despliegues continuos sobre CDNs globales (Cloudflare Pages o Vercel), una política de caché genérica puede servir HTML desfasado que apunte a archivos CSS/JS/WebP con hashes ya eliminados, o cachear excesivamente el contenido dinámico impidiendo que las actualizaciones del blog se reflejen al instante. Además, cada proveedor utiliza convenciones distintas: Cloudflare Pages exige un archivo plano `_headers` en la raíz del directorio compilado (`dist/_headers`), mientras que Vercel exige un manifiesto `vercel.json` en la raíz del proyecto con patrones basados en expresiones regulares.
+- **Cómo se resolvió:** Se implementaron ambos descriptores sincronizados (`public/_headers` y `vercel.json`) aplicando `Cache-Control: public, max-age=31536000, immutable` al directorio `/_astro/*` (donde Astro deposita fuentes, imágenes WebP y scripts con hash de contenido), `max-age=0, must-revalidate` para los documentos `.html` y `max-age=3600, must-revalidate` para `/sitemap.xml`. De este modo se logra portabilidad total entre CDNs, cero activos rotos tras despliegues y máxima velocidad en visitas recurrentes.
 
 ---
 
@@ -61,7 +62,7 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
 
 2. **Paso 4.1 — Cabeceras de Caché Inmutable para Hosting (`public/_headers` / `vercel.json`):**
    - **Objetivo:** Materializar las reglas de caché HTTP en el repositorio para que cualquier CDN aplique de forma estricta la política inmutable sobre `/_astro/*` y revalidación en HTML/sitemap.
-   - **Estado:** Listo para implementar directamente sin dependencias externas.
+   - **Estado:** **Completado** (`public/_headers` para Cloudflare Pages y `vercel.json` para Vercel).
 
 3. **Paso 3 — Portal de Clientes con Firebase Authentication:**
    - **Objetivo:** Instalar el SDK de `firebase`, crear el cliente en `src/lib/firebase.js` asegurando ejecución exclusiva en navegador, documentar variables en `.env.example`, y construir la isla `src/components/AuthIsland.jsx` (Email + Google Popup, estados visuales y feedback en español) montada en `src/pages/login.astro` con `client:load`.

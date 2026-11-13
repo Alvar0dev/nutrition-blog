@@ -32,6 +32,7 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
 | **Tipografías locales** | `Poppins` (`400`, `600`, `700`) y `Permanent Marker` auto-hospedadas mediante `@fontsource` en `/_astro/*.woff2` (`font-display: swap`), con cero peticiones externas a Google Fonts. | [`src/styles/global.css`](src/styles/global.css) |
 | **SEO y Datos Estructurados** | `<html lang="es">`, URLs canónicas, Open Graph (`es_ES`), Twitter Cards, Schema.org JSON-LD (`HealthAndBeautyBusiness` + `Person`), `sitemap.xml` dinámico y `robots.txt`. | [`src/components/BaseHead.astro`](src/components/BaseHead.astro) |
 | **Extensibilidad Auth** | Punto de extensión `AuthPlaceholder.jsx` renderizado sin sobrecarga de JS en `/login` y `/contacto`, listo para conectar `firebase/auth` cuando se active el portal de clientes. | [`src/components/AuthPlaceholder.jsx`](src/components/AuthPlaceholder.jsx) |
+| **Caché CDN Inmutable** | Reglas multi-proveedor (`public/_headers` para Cloudflare Pages y `vercel.json` para Vercel) con caché inmutable de 1 año en `/_astro/*` y revalidación inmediata en HTML y sitemap. | `public/_headers`, `vercel.json` |
 
 ---
 
@@ -42,12 +43,14 @@ nutrition-blog/
 ├── astro.config.mjs                 # Configuración de Astro 7, React y dominios de imágenes
 ├── tailwind.config.js               # Tema visual (colores corporativos y familias tipográficas)
 ├── postcss.config.js                # Pipeline PostCSS (Tailwind CSS + Autoprefixer)
+├── vercel.json                      # Cabeceras HTTP de caché inmutable y revalidación para Vercel
 ├── docs/
 │   ├── ADR-001-migracion-arquitectura-islas.md
 │   ├── PERFORMANCE_AUDIT.md
 │   ├── POST_PRODUCTION_ROADMAP.md
 │   └── PLAN_FASE_2_EJECUCION.md
 ├── public/
+│   ├── _headers                     # Cabeceras HTTP de caché inmutable para Cloudflare Pages
 │   ├── favicon.svg
 │   └── robots.txt
 └── src/

@@ -4,6 +4,14 @@ Todos los cambios notables de este proyecto se documentan en este archivo siguie
 
 ---
 
+## [1.2.1] - 2026-11-13
+
+### Añadido
+- Reglas de cabeceras HTTP en `public/_headers` (Cloudflare Pages) y `vercel.json` (Vercel) con política de caché inmutable de 1 año (`max-age=31536000, immutable`) para `/_astro/*`, revalidación inmediata (`max-age=0, must-revalidate`) para documentos HTML y `max-age=3600, must-revalidate` para `/sitemap.xml`.
+- Documentación técnica ampliada sobre dificultades de portabilidad multi-CDN y justificación arquitectónica en `docs/ADR-001-migracion-arquitectura-islas.md`, `docs/PLAN_FASE_2_EJECUCION.md` y `docs/POST_PRODUCTION_ROADMAP.md`.
+
+---
+
 ## [1.2.0] - 2026-11-10
 
 ### Añadido

@@ -106,13 +106,14 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
 - **Problema:** La integración de servicios de autenticación pesados (como Firebase Authentication) en sitios orientados a contenido estático corre el riesgo de degradar severamente el *Total Blocking Time* (TBT) y el peso del bundle inicial si el SDK se carga de forma global o en componentes que se hidratan al cargar la página. Asimismo, en arquitecturas estáticas servidas desde CDN (Cloudflare Pages / Vercel), una política de caché laxa o mal configurada puede provocar que los usuarios reciban documentos HTML desactualizados que intenten cargar fragmentos JavaScript con hashes ya purgados del servidor tras un despliegue.
 - **Solución:**
   1. **Aislamiento de Auth:** El SDK de Firebase y su lógica interactiva residirán exclusivamente en la isla reactiva `AuthIsland.jsx` montada con `client:load` únicamente en la ruta `/login` (que ya cuenta con `<meta name="robots" content="noindex, nofollow">`). Todas las 19 rutas públicas del portal (`/`, `/blog`, `/blog/[slug]`, `/servicios`, `/contacto`) permanecen con **0 KB de JavaScript de Firebase**.
-  2. **Estrategia de caché CDN:** Se definió la regla de cabeceras inmutables:
-     - Activos generados con hash en `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable` (1 año de caché en navegador y CDN sin riesgo de colisión, pues cada cambio de código altera el hash).
+  2. **Estrategia de caché CDN multi-proveedor (`public/_headers` y `vercel.json`):** Se materializó la regla de cabeceras inmutables para ambos ecosistemas principales sin *vendor lock-in*:
+     - Activos generados con hash en `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable` (1 año de caché en navegador y CDN sin riesgo de colisión, pues cada cambio de código o imagen altera su hash).
      - Documentos HTML y sitemap: `Cache-Control: public, max-age=0, must-revalidate` para HTML y `max-age=3600, must-revalidate` para `sitemap.xml`, garantizando que cualquier actualización o despliegue en producción sea visible de inmediato por los usuarios y rastreadores de búsqueda.
+     - **Resolución de divergencia entre plataformas:** Cloudflare Pages exige un archivo plano `_headers` dentro del directorio de salida (`dist/_headers`, copiado automáticamente por Astro desde `public/_headers`), mientras que Vercel ignora `_headers` y exige un manifiesto JSON en la raíz (`vercel.json`) con patrones de expresión regular (`/_astro/(.*)` y `/(.*)\\.html`). Mantener ambos archivos sincronizados permite desplegar en cualquiera de las dos redes globales con cero configuración manual.
 
 ---
 
-## 5. Métricas consolidadas del sistema (`v1.2.0`)
+## 5. Métricas consolidadas del sistema (`v1.2.1`)
 
 | Métrica / Auditoría | Valor alcanzado | Estado |
 |---|---|---|
