@@ -1,8 +1,8 @@
 # ADR-001: Migración de SPA (React + Vite) a Arquitectura de Islas con Astro
 
-- **Estado:** Aceptado e implementado (`v1.2.0`)
+- **Estado:** Aceptado e implementado (`v1.2.2`)
 - **Fecha inicial:** 2025-02-18
-- **Última revisión:** 2026-11-12
+- **Última revisión:** 2026-11-14
 - **Responsable:** Álvaro Aguilar
 
 ---
@@ -111,9 +111,27 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
      - Documentos HTML y sitemap: `Cache-Control: public, max-age=0, must-revalidate` para HTML y `max-age=3600, must-revalidate` para `sitemap.xml`, garantizando que cualquier actualización o despliegue en producción sea visible de inmediato por los usuarios y rastreadores de búsqueda.
      - **Resolución de divergencia entre plataformas:** Cloudflare Pages exige un archivo plano `_headers` dentro del directorio de salida (`dist/_headers`, copiado automáticamente por Astro desde `public/_headers`), mientras que Vercel ignora `_headers` y exige un manifiesto JSON en la raíz (`vercel.json`) con patrones de expresión regular (`/_astro/(.*)` y `/(.*)\\.html`). Mantener ambos archivos sincronizados permite desplegar en cualquiera de las dos redes globales con cero configuración manual.
 
+### 4.9. Control de calidad integral (QA), estabilidad visual y página 404 (v1.2.2)
+- **Problema:** Tras verificar que `npm run build`, `npm run lint` y Lighthouse arrojaban resultados exitosos, una auditoría técnica y visual exhaustiva sobre las 21 rutas en escritorio (`1280×800`) y móvil (`375×812`) destapó siete anomalías que las herramientas automáticas no pueden detectar:
+  1. El logotipo `LOGO.png` (`1181×292 px`, relación 4.04:1) se configuraba con dimensiones cuadradas `192×192`, provocando que la política por defecto `fit: cover` de Sharp recortara silenciosamente las letras laterales ("NUT" y "AL"), dejando solo "RICIC COACH", y desbordara 96 px verticalmente fuera de la cabecera `h-24` sobre el contenido principal.
+  2. La imagen principal del Hero en `/` (`cachas.png`) colapsaba a `0 px` de altura en móvil (`< 768px`) debido a que su contenedor padre estaba en una cuadrícula de una columna con hijos con `position: absolute` sin altura intrínseca en flujo.
+  3. Los enlaces de retroceso en las 6 subpáginas de `/servicios/*` apuntaban erróneamente a `/` en lugar de `/servicios`.
+  4. La inexistencia de `src/pages/404.astro` provocaba que ante cualquier URL errónea el servidor devolviera una página de error en texto plano sin estilos ni navegación.
+  5. El menú móvil carecía de listeners para cerrar con tecla `Escape` o al redimensionar a escritorio (`>= 768px`), y el salto de accesibilidad carecía de `tabindex="-1"`.
+  6. `ContactForm.jsx` realizaba un aborto silencioso ante envíos compuestos exclusivamente por espacios en blanco (`"   "`), ya que superaban la validación HTML5 `required` pero fallaban el `.trim()`.
+  7. Se detectaron saltos de encabezados (`H1` a `H3` sin `H2`) en servicios y contacto.
+- **Solución:**
+  1. Se recalculó el logotipo a dimensiones proporcionales de alta densidad Retina 2x (**384 × 95 px**, 4.04:1), renderizado a `192×48 px` en escritorio y `160×40 px` en móvil. Esto eliminó el recorte central, anuló el desbordamiento vertical y unificó la caché de salida en un único WebP de **5.0 KB** compartido entre `Layout.astro` y `Footer.astro`.
+  2. Se añadieron restricciones de altura mínima responsiva al contenedor del Hero móvil (`min-h-[280px] sm:min-h-[340px] md:min-h-0 h-full overflow-hidden rounded-xl md:overflow-visible md:rounded-none`), recuperando la visibilidad en smartphone sin CLS y preservando la dirección de arte en escritorio (`-rotate-90 scale-150`).
+  3. Se corrigieron los enlaces de retorno a `href="/servicios"` en las 6 especialidades.
+  4. Se creó `src/pages/404.astro` con directiva `noindex={true}` y 3 CTAs de recuperación (`/`, `/servicios`, `/blog`), generando nativamente `dist/404.html` y elevando el catálogo total a **21 páginas estáticas**.
+  5. Se implementaron listeners condicionales de `keydown` y `resize` en `Navbar.jsx` activos exclusivamente con `isOpen === true` (0 listeners globales en reposo) y `tabindex="-1"` en `<main id="main-content">`.
+  6. Se introdujo validación reactiva con mensaje explicativo y banner accesible `role="alert"` en `ContactForm.jsx`.
+  7. Se normalizó la jerarquía tipográfica secuencial `H1` → `H2` → `H3` para navegación de lectores de pantalla y rastreo semántico SEO.
+
 ---
 
-## 5. Métricas consolidadas del sistema (`v1.2.1`)
+## 5. Métricas consolidadas del sistema (`v1.2.2`)
 
 | Métrica / Auditoría | Valor alcanzado | Estado |
 |---|---|---|
@@ -123,7 +141,7 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
 | **Largest Contentful Paint (LCP)** | `0.4 s – 0.5 s` | Excelente |
 | **Total Blocking Time (TBT)** | `0 ms` (rutas estáticas) | Sin bloqueo |
 | **Cumulative Layout Shift (CLS)** | `0 – 0.015` | Sin saltos visuales |
-| **Páginas estáticas compiladas** | **20 páginas** en `~2.7 s` | SSG de alta velocidad |
-| **Recursos WebP optimizados** | **41 imágenes** generadas automáticamente en `dist/_astro/` | Compresión máxima |
+| **Páginas estáticas compiladas** | **21 páginas** (incluyendo `/404.html`) en `~2.7 s` | SSG de alta velocidad |
+| **Recursos WebP optimizados** | **41 imágenes** generadas automáticamente en `dist/_astro/` (logo unificado 384×95, 5 KB) | Compresión máxima |
 | **URLs públicas en Sitemap** | **19 URLs** canónicas con `lastmod` dinámico | 100% indexable |
 

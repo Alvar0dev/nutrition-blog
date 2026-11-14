@@ -9,10 +9,14 @@ const INITIAL_STATE = {
 export default function ContactForm() {
   const [formData, setFormData] = useState(INITIAL_STATE);
   const [status, setStatus] = useState('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [submittedData, setSubmittedData] = useState(null);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
+    if (errorMessage) {
+      setErrorMessage('');
+    }
     setFormData((prev) => ({
       ...prev,
       [id]: value,
@@ -28,9 +32,11 @@ export default function ContactForm() {
     };
 
     if (!trimmed.name || !trimmed.email || !trimmed.message) {
+      setErrorMessage('Por favor, completa todos los campos con texto válido antes de enviar.');
       return;
     }
 
+    setErrorMessage('');
     setStatus('submitting');
     setSubmittedData(trimmed);
     setStatus('success');
@@ -39,6 +45,7 @@ export default function ContactForm() {
 
   const handleReset = () => {
     setSubmittedData(null);
+    setErrorMessage('');
     setStatus('idle');
   };
 
@@ -58,7 +65,7 @@ export default function ContactForm() {
         className="bg-accent/5 border border-silver/30 rounded-xl p-6 text-accent space-y-5 font-body"
       >
         <div className="space-y-2">
-          <h4 className="font-display text-2xl text-silver">¡MENSAJE PREPARADO!</h4>
+          <h3 className="font-display text-2xl text-silver">¡MENSAJE PREPARADO!</h3>
           <p className="text-sm text-gray-300">
             Gracias, <strong className="text-accent">{submittedData.name}</strong>. Elige cómo prefieres
             enviar tu consulta directa a Álvaro Aguilar:
@@ -142,6 +149,14 @@ export default function ContactForm() {
           required
         ></textarea>
       </div>
+      {errorMessage && (
+        <p
+          role="alert"
+          className="text-sm font-body text-accent bg-primary/40 border border-primary rounded-lg px-4 py-2.5"
+        >
+          {errorMessage}
+        </p>
+      )}
       <button
         type="submit"
         disabled={status === 'submitting'}

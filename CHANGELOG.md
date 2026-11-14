@@ -4,6 +4,25 @@ Todos los cambios notables de este proyecto se documentan en este archivo siguie
 
 ---
 
+## [1.2.2] - 2026-11-14
+
+### Añadido
+- Página 404 personalizada `src/pages/404.astro` (`/404.html`) integrada con `Layout.astro`, directiva `noindex` y botones de recuperación hacia `/`, `/servicios` y `/blog`.
+- Documento técnico integral de control de calidad `docs/QA_AUDIT.md` con el registro de 7 hallazgos detectados, sus causas raíz y soluciones aplicadas en las 21 rutas estáticas.
+
+### Corregido
+- Relación de aspecto del logotipo en `src/layouts/Layout.astro` y `src/components/Footer.astro`, recalculando dimensiones a 384×95 px (proporción 4.04:1 en WebP) para eliminar el recorte cuadrado ("RICIC COACH") y el desbordamiento vertical de 96 px sobre el contenido.
+- Enlaces de retorno "← Volver a Servicios" en las seis páginas de detalle (`src/pages/servicios/{habitos,objetivos,composicion,salud,asesoramiento,educacion}.astro`), redirigiendo correctamente a `/servicios` en vez de a `/`.
+- Colapso a 0 px de la imagen Hero (`cachas.png`) en vista móvil (`< 768px`) en `src/pages/index.astro`, fijando `min-h-[280px] sm:min-h-[340px]` en su contenedor relative.
+- Manejadores de eventos de teclado y redimensionamiento en `src/components/Navbar.jsx` para cerrar el menú desplegable móvil al pulsar `Escape` o al expandir la ventana a escritorio (`>= 768px`).
+- Foco por teclado en el cuerpo principal (`<main id="main-content">`) en `src/layouts/Layout.astro` mediante `tabindex="-1"` y clase `outline-none` para el enlace de salto accesible.
+- Validación reactiva en `src/components/ContactForm.jsx` para detectar entradas con solo espacios en blanco, mostrando una alerta visual y accesible (`role="alert"`).
+- Normalización semántica de encabezados `H1` → `H2` → `H3` en `/servicios`, en las 6 especialidades de servicios y en `/contacto`.
+- Unificación visual de la rejilla e imágenes en `src/pages/servicios/habitos.astro` a `h-64` y `md:grid-cols-3` en concordancia con el resto de servicios.
+- Priorización de carga sobre el pliegue (`loading="eager"` / `fetchpriority="high"`) en imágenes principales de servicios y catálogo de blog, además de mejorar el contraste tipográfico de fechas en `src/pages/blog/index.astro` a `text-gray-400`.
+
+---
+
 ## [1.2.1] - 2026-11-13
 
 ### Añadido

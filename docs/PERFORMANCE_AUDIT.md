@@ -1,6 +1,6 @@
 # Auditoría de Rendimiento y Core Web Vitals
 
-Este documento recoge las métricas comparativas antes y después de la migración arquitectónica a **Astro 7** y el pulido de postproducción (`v1.1.0`), incluyendo el desglose de compresión de activos, las dificultades detectadas durante el perfilado y los resultados de **Lighthouse** verificados sobre el build de producción (`npm run build` + `npm run preview`).
+Este documento recoge las métricas comparativas antes y después de la migración arquitectónica a **Astro 7**, el pulido de postproducción y la auditoría integral de calidad (`v1.2.2`), incluyendo el desglose de compresión de activos, las dificultades detectadas durante el perfilado y los resultados de **Lighthouse** verificados sobre el build de producción (`npm run build` + `npm run preview`).
 
 ---
 
@@ -25,9 +25,9 @@ Auditoría ejecutada con Lighthouse CLI (Chrome Headless, preset Desktop) sobre 
 |---|---|---:|---:|---:|---:|
 | `src/assets/yo.png` | Retrato en `/contacto` | **17,041.0 KB** | `600 × 600` (`q=80`) | **16.3 KB** | **-99.90%** |
 | `src/assets/cachas.png` | Hero principal en `/` | **519.9 KB** | `800 × 600` (`q=85`) | **66.7 KB** | **-87.17%** |
-| `src/assets/LOGO.png` | Cabecera y pie de página | **73.7 KB** | `192 × 192` (`q=85`) | **6.0 KB** | **-91.86%** |
+| `src/assets/LOGO.png` | Cabecera y pie de página | **73.7 KB** | `384 × 95` (`q=85`, Retina 2x, 4.04:1) | **5.0 KB** | **-93.21%** |
 
-*(Nota: En `v1.1.0` se eliminó la segunda instancia duplicada de `LOGO.png` a `128 × 128` en el pie de página, reduciendo el total de activos generados de 33 a 32 imágenes WebP).*
+*(Nota: En `v1.2.2` se unificó la dimensión de `LOGO.png` a `384 × 95 px` tanto en `Layout.astro` como en `Footer.astro`, respetando la relación de aspecto exacta `4.04:1` del activo original de `1181 × 292 px`. Esto eliminó el recorte central automático de Sharp ("RICIC COACH") y el desbordamiento vertical de 96 px en la barra de navegación, reutilizando una única entrada unificada en la caché de WebP de 5.0 KB en `dist/_astro/`).*
 
 ### 2.2. Activos remotos (Pexels) procesados en tiempo de build
 
@@ -59,3 +59,9 @@ Al declarar `image: { domains: ['images.pexels.com'] }` en `astro.config.mjs`, A
    - Ejecutar múltiples instancias de Chrome Headless en paralelo produjo lecturas distorsionadas de `TBT` por estrangulamiento del hilo principal del sistema operativo. La ejecución secuencial por ruta demostró un `TBT = 0 ms` estable en todas las páginas.
 3. **Hidratación de islas vacías:**
    - Mantener `client:load` sobre `AuthPlaceholder.jsx` en `/contacto` y `/login` añadía trabajo de hidratación en el hilo principal sin renderizar interfaz visible. Deshidratar el componente hasta la fase de conexión con Firebase eliminó ese coste por completo.
+4. **Recorte de aspecto en Sharp y desbordamiento en layout por dimensiones forzadas (`v1.2.2`):**
+   - Al redimensionar activos con relaciones de aspecto diferentes a la original (`1181×292 px` a `192×192`), Sharp aplica por defecto `fit: cover` con recorte central, mutilando silenciosamente los extremos de la imagen. La caja de 192 px de alto desbordaba además la barra de navegación `h-24` (96 px). El recálculo proporcional a densidad Retina 2x (`384×95 px`, 5.0 KB WebP) unificó la caché de salida entre cabecera y pie, garantizando encaje geométrico perfecto (`192×48 px` en escritorio con 24 px de holgura superior/inferior).
+5. **Colapso a 0 px de contenedores grid con hijos absolutos en vista móvil (`v1.2.2`):**
+   - En `src/pages/index.astro`, la columna del Hero en móvil (`< 768px`) colapsaba a 0 px de altura al contener únicamente un elemento con `position: absolute`. La incorporación de `min-h-[280px] sm:min-h-[340px] md:min-h-0` restauró la visibilidad móvil sin incurrir en CLS (`CLS = 0`) y preservó la dirección de arte de escritorio (`-rotate-90 scale-150`).
+6. **Invisibilidad de fallos de interacción en auditorías pasivas de Lighthouse (`v1.2.2`):**
+   - Lighthouse evalúa páginas en reposo sobre un viewport fijo; no interactúa con menús dinámicos (pulsar `Escape` para cerrar o redimensionar la ventana), no prueba envíos de formulario con solo espacios tras `.trim()` y no verifica el comportamiento ante rutas 404 si no se invocan directamente. La inclusión de `src/pages/404.astro` (`noindex={true}` y 3 CTAs de retorno) completó el catálogo estático en **21 páginas compiladas**.

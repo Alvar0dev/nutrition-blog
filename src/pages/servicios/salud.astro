@@ -27,7 +27,7 @@ const images = [
 >
   <div class="bg-accent min-h-screen py-16">
     <div class="container mx-auto px-4">
-      <a href="/" class="text-primary hover:text-opacity-80 mb-8 inline-block">
+      <a href="/servicios" class="text-primary hover:text-opacity-80 mb-8 inline-block">
         ← Volver a Servicios
       </a>
 
@@ -42,7 +42,7 @@ const images = [
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        {images.map((image) => (
+        {images.map((image, index) => (
           <div class="rounded-xl overflow-hidden shadow-lg">
             <Image
               src={image.url}
@@ -51,12 +51,12 @@ const images = [
               height={300}
               format="webp"
               quality={80}
-              loading="lazy"
+              loading={index === 0 ? 'eager' : 'lazy'}
               decoding="async"
               class="w-full h-64 object-cover"
             />
             <div class="p-6 bg-secondary">
-              <h3 class="font-display text-xl text-silver mb-2">{image.title}</h3>
+              <h2 class="font-display text-xl text-silver mb-2">{image.title}</h2>
               <p class="text-accent">{image.description}</p>
             </div>
           </div>

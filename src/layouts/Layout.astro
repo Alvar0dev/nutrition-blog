@@ -56,16 +56,16 @@ const ogImage = new URL(imageSrc, siteUrl).href;
       <Image
         src={defaultOgImage}
         alt="Nutricional Coach"
-        width={192}
-        height={192}
+        width={384}
+        height={95}
         format="webp"
         quality={85}
         loading="eager"
         decoding="async"
-        class="w-full h-auto rounded-xl shadow-lg"
+        class="w-full h-auto rounded"
       />
     </Navbar>
-    <main id="main-content" class="flex-grow">
+    <main id="main-content" tabindex="-1" class="flex-grow outline-none">
       <slot />
     </main>
     <Footer />

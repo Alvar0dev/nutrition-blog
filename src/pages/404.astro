@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Página no encontrada (404) | Nutricional Coach"
+  description="La página que buscas no existe o ha sido movida. Vuelve al inicio o explora nuestros servicios y artículos de nutrición."
+  noindex={true}
+>
+  <section class="bg-accent py-20 min-h-[65vh] flex items-center">
+    <div class="container mx-auto px-4 max-w-2xl text-center">
+      <div class="bg-secondary text-accent p-10 md:p-14 rounded-2xl shadow-xl border border-silver/20 space-y-6">
+        <p class="font-display text-6xl md:text-7xl text-primary" aria-hidden="true">404</p>
+        <h1 class="font-display text-3xl md:text-4xl text-silver">PÁGINA NO ENCONTRADA</h1>
+        <p class="font-body text-gray-300 text-lg leading-relaxed">
+          La dirección que has introducido no existe o ha cambiado de ubicación. Puedes volver al
+          inicio o explorar nuestros programas nutricionales y artículos divulgativos.
+        </p>
+        <div class="pt-4 flex flex-col sm:flex-row justify-center gap-4">
+          <a
+            href="/"
+            class="inline-flex items-center justify-center bg-primary text-accent px-6 py-3 rounded-lg font-display hover:bg-opacity-90 transition-colors"
+          >
+            VOLVER AL INICIO
+          </a>
+          <a
+            href="/servicios"
+            class="inline-flex items-center justify-center bg-accent text-secondary px-6 py-3 rounded-lg font-display hover:bg-silver transition-colors"
+          >
+            VER SERVICIOS
+          </a>
+          <a
+            href="/blog"
+            class="inline-flex items-center justify-center border border-silver/40 text-silver px-6 py-3 rounded-lg font-display hover:border-accent hover:text-accent transition-colors"
+          >
+            IR AL BLOG
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -9,7 +9,8 @@ Documento operativo que establece la hoja de ruta paso por paso para la ejecuci�
 | Paso | Módulo | Estado | Objetivo principal | Archivos afectados | Verificación técnica |
 |---|---|---|---|---|---|
 | **Paso 1** | **Identidad & Redes** | Pendiente | Reemplazar URLs placeholder de redes sociales por los perfiles oficiales y sincronizar Schema.org. | `Footer.astro`, `BaseHead.astro` | Inspección visual en pie y validación de JSON-LD. |
-| **Paso 2** | **Blog Interno (Content Collections)** | **Completado (`v1.2.0`)** | Migrar artículos a Markdown local con Content Layer API (`src/content.config.ts`) y generar rutas dinámicas `/blog/[slug]`. | `src/content.config.ts`, `src/content/blog/`, `src/lib/posts.js`, `src/pages/blog/`, `sitemap.xml.js` | `npm run build` genera 20 páginas estáticas + `/sitemap.xml` con 19 URLs. |
+| **Paso 2** | **Blog Interno (Content Collections)** | **Completado (`v1.2.0`)** | Migrar artículos a Markdown local con Content Layer API (`src/content.config.ts`) y generar rutas dinámicas `/blog/[slug]`. | `src/content.config.ts`, `src/content/blog/`, `src/lib/posts.js`, `src/pages/blog/`, `sitemap.xml.js` | `npm run build` genera páginas estáticas + `/sitemap.xml` con 19 URLs. |
+| **QA & Estabilidad** | **Control de Calidad Integral (`v1.2.2`)** | **Completado** | Auditoría visual, geométrica y funcional en las 21 rutas (escritorio `1280×800` y móvil `375×812`), corrección de layout del logotipo, navegación, responsive hero, página 404, WCAG y semántica. | `Layout.astro`, `Footer.astro`, `Navbar.jsx`, `ContactForm.jsx`, `404.astro`, `index.astro`, `servicios/*.astro`, `blog/index.astro`, `docs/QA_AUDIT.md` | `npm run build` genera 21 páginas estáticas (incluyendo `/404.html`) y `npm run lint` pasa con 0 errores. |
 | **Paso 3** | **Portal Clientes (Firebase Auth)** | Pendiente | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes. | `src/lib/firebase.js`, `AuthPlaceholder.jsx`, `login.astro`, `.env` | Flujo de autenticación cliente probado en local. |
 | **Paso 4** | **Despliegue a Producción (CDN)** | En progreso (4.1 listo) | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché (`public/_headers`, `vercel.json`) y dominio. | `public/_headers`, `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
 
@@ -135,6 +136,7 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 - [x] **Paso 2.1:** Configurar `src/content.config.ts` (Content Layer API de Astro 7 con `glob` loader) y crear los 9 artículos Markdown en `src/content/blog/*.md`.
 - [x] **Paso 2.2:** Crear plantilla `src/pages/blog/[slug].astro` con JSON-LD `BlogPosting` y enlazar catálogo en `src/pages/blog/index.astro`.
 - [x] **Paso 2.3:** Integrar rutas dinámicas del blog en `src/pages/sitemap.xml.js`.
+- [x] **Control de Calidad (QA — `v1.2.2`):** Auditoría visual y funcional sobre las 21 rutas estáticas (escritorio y móvil), resolución de 7 anomalías críticas/medias y creación de `src/pages/404.astro` (`dist/404.html`). Ver [`docs/QA_AUDIT.md`](QA_AUDIT.md).
 - [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js` con variables de entorno documentadas en `.env.example`.
 - [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React `AuthIsland.jsx` e integrarla en `src/pages/login.astro`.
 - [x] **Paso 4.1:** Crear archivo de cabeceras de caché inmutable (`public/_headers` y `vercel.json`).
@@ -150,7 +152,7 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 
 2. **Migración a la nueva Content Layer API en lugar del API heredado (Paso 2):**
    - *Dificultad:* Astro 5/6/7 reemplazó el antiguo `src/content/config.ts` por `src/content.config.ts` utilizando la API Content Layer con cargadores (`glob`). La documentación heredada sugería la estructura antigua que no aprovecha la sincronización incremental de contenidos ni la tipificación automática de TypeScript en compilación.
-   - *Por qué se construyó así:* La Content Layer API compila los contenidos en milisegundos y desacopla la carga de datos del renderizado, permitiendo que la compilación de 20 páginas y 41 imágenes WebP tarde menos de 3 segundos en total.
+   - *Por qué se construyó así:* La Content Layer API compila los contenidos en milisegundos y desacopla la carga de datos del renderizado, permitiendo que la compilación de 21 páginas y 41 imágenes WebP tarde menos de 3 segundos en total.
 
 3. **Aislamiento del SDK de Firebase para Proteger Métricas Web Vitals (Paso 3):**
    - *Dificultad:* La librería cliente de Firebase añade decenas de kilobytes de JavaScript que, de cargarse en el layout principal o en páginas de contenido, arruinarían el 100/100 de Lighthouse y el TBT de `0 ms`.
@@ -164,11 +166,17 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
      2. Mantener `vercel.json` en la raíz con validación `$schema` asegura compatibilidad inmediata con Vercel sin reescribir configuración si se cambia de proveedor.
      3. Aplicar `max-age=31536000, immutable` exclusivamente a `/_astro/*` elimina peticiones repetidas de fuentes WOFF2, imágenes WebP y bundles de islas, mientras `max-age=0, must-revalidate` en HTML y `max-age=3600, must-revalidate` en `/sitemap.xml` garantizan despliegues atómicos e indexación fresca.
 
+5. **Auditoría de Control de Calidad, Estabilidad Visual y Página 404 (`v1.2.2` — Ver [`docs/QA_AUDIT.md`](QA_AUDIT.md)):**
+   - *Dificultad 1 (Recorte cuadrado y desbordamiento del logotipo):* El activo `src/assets/LOGO.png` tiene dimensiones reales de 1181×292 px (proporción horizontal 4.04:1). Forzar `width={192}` y `height={192}` (`1:1`) en Astro causaba que Sharp recortara los extremos por defecto con `fit: cover` dejando solo el centro ("RICIC COACH") y desbordara 96 px hacia abajo sobre el contenido superior en todas las páginas.
+   - *Dificultad 2 (Colapso del hero móvil a 0 px):* En `src/pages/index.astro`, la columna derecha del hero albergaba solo elementos con `position: absolute`. Al pasar a una sola columna en pantallas móviles (`< 768px`), el contenedor colapsaba a 0 px de alto, ocultando por completo la imagen del entrenador (`cachas.png`).
+   - *Dificultad 3 (Navegación rota en servicios y ausencia de 404):* Los enlaces de retorno en las 6 especialidades apuntaban a `/` en lugar de `/servicios`, y las rutas inexistentes carecían de una plantilla `404.astro` integrada en el layout.
+   - *Por qué se construyó así:* Se redimensionó el logotipo a 384×95 px (Retina 2x, relación 4.04:1 exacta, unificando la caché WebP a 5.0 KB entre cabecera y pie), se dotó al hero móvil de `min-h-[280px] sm:min-h-[340px] md:min-h-0 h-full overflow-hidden rounded-xl md:overflow-visible md:rounded-none` (preservando la dirección de arte en escritorio `-rotate-90 scale-150`), se normalizaron los enlaces a `/servicios`, se creó `src/pages/404.astro` con directiva `noindex` (alcanzando 21 páginas estáticas compiladas), se añadieron listeners para cerrar el menú móvil con `Escape`/redimensionamiento (`isOpen === true`, 0 listeners en reposo) y se blindó la validación del formulario de contacto frente a cadenas de solo espacios mediante alertas accesibles (`role="alert"`).
+
 ---
 
 ## 5. Plan de Continuación para Mañana
 
-Con el **Paso 2** (Blog interno Content Layer) y el **Paso 4.1** (Cabeceras de caché CDN en `public/_headers` y `vercel.json`) ya completados y verificados en `v1.2.1`, el orden de ejecución para mañana queda estructurado en 3 bloques:
+Con el **Paso 2** (Blog interno Content Layer), el **Paso 4.1** (Cabeceras de caché CDN en `public/_headers` y `vercel.json`) y la **Auditoría de QA (`v1.2.2`)** ya completados y verificados con 21 páginas estáticas, el orden de ejecución para mañana queda estructurado en 3 bloques:
 
 1. **Prioridad 1 — Identidad Oficial y Marcado de Autoridad (Paso 1):**
    - *Estado:* Bloqueado únicamente a la espera de las URLs definitivas de Instagram y LinkedIn de Álvaro Aguilar.
