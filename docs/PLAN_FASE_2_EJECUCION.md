@@ -11,7 +11,7 @@ Documento operativo que establece la hoja de ruta paso por paso para la ejecuci�
 | **Paso 1** | **Identidad & Redes** | Pendiente | Reemplazar URLs placeholder de redes sociales por los perfiles oficiales y sincronizar Schema.org. | `Footer.astro`, `BaseHead.astro` | Inspección visual en pie y validación de JSON-LD. |
 | **Paso 2** | **Blog Interno (Content Collections)** | **Completado (`v1.2.0`)** | Migrar artículos a Markdown local con Content Layer API (`src/content.config.ts`) y generar rutas dinámicas `/blog/[slug]`. | `src/content.config.ts`, `src/content/blog/`, `src/lib/posts.js`, `src/pages/blog/`, `sitemap.xml.js` | `npm run build` genera páginas estáticas + `/sitemap.xml` con 19 URLs. |
 | **QA & Estabilidad** | **Control de Calidad Integral (`v1.2.2`)** | **Completado** | Auditoría visual, geométrica y funcional en las 21 rutas (escritorio `1280×800` y móvil `375×812`), corrección de layout del logotipo, navegación, responsive hero, página 404, WCAG y semántica. | `Layout.astro`, `Footer.astro`, `Navbar.jsx`, `ContactForm.jsx`, `404.astro`, `index.astro`, `servicios/*.astro`, `blog/index.astro`, `docs/QA_AUDIT.md` | `npm run build` genera 21 páginas estáticas (incluyendo `/404.html`) y `npm run lint` pasa con 0 errores. |
-| **Paso 3** | **Portal Clientes (Firebase Auth)** | Pendiente | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes. | `src/lib/firebase.js`, `AuthPlaceholder.jsx`, `login.astro`, `.env` | Flujo de autenticación cliente probado en local. |
+| **Paso 3** | **Portal Clientes (Firebase Auth)** | **Completado (`v1.3.0`)** | Conectar SDK de Firebase Authentication en `/login` para permitir acceso seguro de clientes sin afectar las rutas públicas. | `src/lib/firebase.js`, `src/lib/authHelpers.js`, `AuthIsland.jsx`, `login.astro`, `.env.example`, `.gitignore`, `tests/auth.test.js` | `npm test` (4/4), `npm run lint`, `npm run build` y aislamiento 0 KB en rutas públicas verificados. |
 | **Paso 4** | **Despliegue a Producción (CDN)** | En progreso (4.1 listo) | Configurar pipeline de publicación (Cloudflare Pages / Vercel), cabeceras de caché (`public/_headers`, `vercel.json`) y dominio. | `public/_headers`, `vercel.json`, `README.md` | Despliegue en vivo en `nutricionalcoach.com` con SSL y HTTP/2+. |
 
 ---
@@ -58,7 +58,7 @@ Originalmente, las 9 tarjetas en `src/pages/blog.astro` enlazaban externamente a
 
 ---
 
-### Paso 3: Arquitectura y Conexión de Firebase Auth en el Área de Clientes
+### Paso 3: Arquitectura y Conexión de Firebase Auth en el Área de Clientes — Completado (`v1.3.0`)
 
 #### 3.1. Contexto y Justificación
 `src/pages/login.astro` y `src/components/AuthPlaceholder.jsx` están preparados como puntos de extensión estáticos (0 KB de JavaScript). Cuando se decida habilitar el área privada de seguimiento, se conectará el SDK de **Firebase Authentication** únicamente en esa ruta, manteniendo el resto del portal libre de sobrecarga.
@@ -137,8 +137,8 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 - [x] **Paso 2.2:** Crear plantilla `src/pages/blog/[slug].astro` con JSON-LD `BlogPosting` y enlazar catálogo en `src/pages/blog/index.astro`.
 - [x] **Paso 2.3:** Integrar rutas dinámicas del blog en `src/pages/sitemap.xml.js`.
 - [x] **Control de Calidad (QA — `v1.2.2`):** Auditoría visual y funcional sobre las 21 rutas estáticas (escritorio y móvil), resolución de 7 anomalías críticas/medias y creación de `src/pages/404.astro` (`dist/404.html`). Ver [`docs/QA_AUDIT.md`](QA_AUDIT.md).
-- [ ] **Paso 3.1:** Instalar `firebase` y crear `src/lib/firebase.js` con variables de entorno documentadas en `.env.example`.
-- [ ] **Paso 3.2:** Construir UI de login con Google / Email en isla React `AuthIsland.jsx` e integrarla en `src/pages/login.astro`.
+- [x] **Paso 3.1:** Instalar `firebase@^13.4.0`, proteger `.env` en `.gitignore` y crear `src/lib/firebase.js`, `src/lib/authHelpers.js` y `tests/auth.test.js` con variables documentadas en `.env.example`.
+- [x] **Paso 3.2:** Construir UI de login con Google / Email, manejo de errores en español y cierre de sesión en isla React `AuthIsland.jsx` e integrarla exclusivamente en `src/pages/login.astro`. *(Nota operativa: requiere rellenar `.env` con las credenciales del proyecto Firebase para login real).*
 - [x] **Paso 4.1:** Crear archivo de cabeceras de caché inmutable (`public/_headers` y `vercel.json`).
 - [ ] **Paso 4.2:** Conectar repositorio a la plataforma de hosting (Cloudflare Pages o Vercel), enlazar dominio y validar en vivo.
 
@@ -154,9 +154,14 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
    - *Dificultad:* Astro 5/6/7 reemplazó el antiguo `src/content/config.ts` por `src/content.config.ts` utilizando la API Content Layer con cargadores (`glob`). La documentación heredada sugería la estructura antigua que no aprovecha la sincronización incremental de contenidos ni la tipificación automática de TypeScript en compilación.
    - *Por qué se construyó así:* La Content Layer API compila los contenidos en milisegundos y desacopla la carga de datos del renderizado, permitiendo que la compilación de 21 páginas y 41 imágenes WebP tarde menos de 3 segundos en total.
 
-3. **Aislamiento del SDK de Firebase para Proteger Métricas Web Vitals (Paso 3):**
-   - *Dificultad:* La librería cliente de Firebase añade decenas de kilobytes de JavaScript que, de cargarse en el layout principal o en páginas de contenido, arruinarían el 100/100 de Lighthouse y el TBT de `0 ms`.
-   - *Por qué se construyó así:* Se diseñó un aislamiento estricto donde el SDK de Firebase y la isla `AuthIsland.jsx` se confinan exclusivamente a la ruta `/login`, la cual además cuenta con directiva `noindex, nofollow`. Las 19 páginas públicas del portal se mantienen con 0 KB de Firebase.
+3. **Aislamiento del SDK de Firebase, Seguridad SSR y Testabilidad (Paso 3 — Completado en `v1.3.0`):**
+   - *Dificultad 1 (Contaminación de bundle):* La librería cliente de Firebase (`~113.15 KB` compilados) degradaría el 100/100 de Lighthouse y el TBT de `0 ms` si alcanzara el layout global o rutas públicas.
+   - *Dificultad 2 (Pre-renderizado SSR de islas `client:load` y ausencia de `.env`):* Astro pre-renderiza los componentes React en Node.js durante `npm run build` e incrusta variables `PUBLIC_*` estáticamente en compilación. Ejecutar `initializeApp()`/`getAuth()` al cargar el módulo o romper el árbol React si faltan credenciales causaría errores de build o desincronización de hidratación (*hydration mismatch*).
+   - *Dificultad 3 (Testabilidad y seguridad):* No existía framework de pruebas (`jsdom`/`vitest`) para validar entradas, placeholders y errores Firebase; `.gitignore` no excluía `.env`; `photoURL` requería validación de esquema; npm 12 bloqueó scripts `postinstall` de subdependencias (`@firebase/util`, `protobufjs`); y las pruebas en navegador automatizado desde terminal elevada quedaron bloqueadas por política de integridad.
+   - *Por qué se construyó así:*
+     1. Se confinó `AuthIsland.jsx` (`client:load`) exclusivamente en `src/pages/login.astro` (`noindex`), manteniendo `AuthPlaceholder.jsx` estático (0 KB JS) en `/contacto` y verificando en los 21 HTML de `dist/` que las 20 rutas restantes tienen **0 KB** de Firebase.
+     2. `src/lib/firebase.js` bloquea la ejecución en servidor (`typeof window === 'undefined'`), detecta configuraciones incompletas o valores de plantilla (`isFirebaseConfigComplete`) y protege `initializeApp`/`getAuth` con `try/catch`, mientras `AuthIsland.jsx` conserva paridad exacta SSR/cliente mostrando aviso de configuración pendiente y alerta accesible `role="alert"` si falta `.env`.
+     3. Se extrajeron reglas puras a `src/lib/authHelpers.js` (usando `Object.hasOwn` para evitar colisiones con el prototipo en el mapa de errores) para cubrirlas con `node --test` en `tests/auth.test.js` (4/4 tests en verde sin dependencias extra), se protegió `.env`/`.env.*` en `.gitignore` y se validó `photoURL` con `https://` y `referrerPolicy="no-referrer"`.
 
 4. **Políticas de Caché en Hosting Estático y Portabilidad Multi-CDN (Paso 4.1 — Completado en `v1.2.1`):**
    - *Dificultad 1 (Desincronización tras despliegues):* Los despliegues continuos en CDNs globales pueden sufrir desincronización de activos (*stale HTML / broken chunks*) si el navegador almacena en caché archivos HTML que referencian fragmentos CSS/JS/WebP de un build anterior cuyos hashes ya fueron reemplazados.
@@ -176,14 +181,14 @@ Para garantizar que el sitio mantenga sus puntuaciones de 100/100 en un entorno 
 
 ## 5. Plan de Continuación para Mañana
 
-Con el **Paso 2** (Blog interno Content Layer), el **Paso 4.1** (Cabeceras de caché CDN en `public/_headers` y `vercel.json`) y la **Auditoría de QA (`v1.2.2`)** ya completados y verificados con 21 páginas estáticas, el orden de ejecución para mañana queda estructurado en 3 bloques:
+Con el **Paso 2** (Blog interno Content Layer), el **Paso 3** (Portal de Clientes Firebase Auth en `/login`, tests nativos y aislamiento verificado en `v1.3.0`), el **Paso 4.1** (Cabeceras de caché CDN en `public/_headers` y `vercel.json`) y la **Auditoría de QA (`v1.2.2`)** completados, el orden de ejecución para mañana queda estructurado en 3 bloques:
 
 1. **Prioridad 1 — Identidad Oficial y Marcado de Autoridad (Paso 1):**
    - *Estado:* Bloqueado únicamente a la espera de las URLs definitivas de Instagram y LinkedIn de Álvaro Aguilar.
    - *Acción:* Reemplazar los enlaces placeholder en `src/components/Footer.astro` (con `aria-label` descriptivos) y añadirlos al array `sameAs` del grafo JSON-LD en `src/components/BaseHead.astro`.
-2. **Prioridad 2 — Portal de Clientes con Firebase Auth (Paso 3):**
-   - *Estado:* Listo para implementar en código.
-   - *Acción:* Instalar `firebase`, configurar `src/lib/firebase.js` (aislado al navegador), crear `.env.example`, desarrollar la isla `src/components/AuthIsland.jsx` (acceso con Email/Contraseña y Google Popup, manejo de errores en español y cierre de sesión) y montarla con `client:load` exclusivamente en `src/pages/login.astro`.
+2. **Prioridad 2 — Credenciales de Firebase y Prueba Real del Portal (Cierre operativo Paso 3):**
+   - *Estado:* Código implementado y validado en compilación/tests; pendiente de credenciales del proyecto Firebase.
+   - *Acción:* Copiar `.env.example` a `.env` con las claves de Firebase Console, habilitar proveedores Email/Password y Google (añadiendo dominio autorizado) y verificar el flujo completo de inicio/cierre de sesión en un navegador estándar.
 3. **Prioridad 3 — Despliegue en Producción y Dominio (Paso 4.2):**
    - *Estado:* Listo para conectar (las cabeceras de caché `public/_headers` y `vercel.json` ya están en el repositorio).
-   - *Acción:* Vincular el repositorio `Alvar0dev/nutrition-blog` con Cloudflare Pages o Vercel, configurar los registros DNS de `nutricionalcoach.com`, activar SSL/HTTP3 y ejecutar la auditoría Lighthouse final sobre la URL pública de producción.
+   - *Acción:* Vincular el repositorio `Alvar0dev/nutrition-blog` con Cloudflare Pages o Vercel, configurar las variables de entorno `PUBLIC_FIREBASE_*` y los registros DNS de `nutricionalcoach.com`, activar SSL/HTTP3 y ejecutar la auditoría Lighthouse final sobre la URL pública de producción.

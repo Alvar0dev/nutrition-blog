@@ -4,6 +4,20 @@ Todos los cambios notables de este proyecto se documentan en este archivo siguie
 
 ---
 
+## [1.3.0] - 2026-11-17
+
+### Añadido
+- Integración de **Firebase Authentication (`firebase@^13.4.0`)** confinada exclusivamente al área privada `/login` (`noindex`), manteniendo las 20 rutas públicas y de error restantes con **0 KB** de JavaScript de Firebase.
+- Cliente `src/lib/firebase.js` con inicialización estricta en navegador (`typeof window !== 'undefined'`), reutilización segura de instancia (`getApps()`) y tolerancia ante entornos sin `.env` o con fallos de arranque (`try/catch`).
+- Módulo puro de utilidades `src/lib/authHelpers.js` para validar credenciales (`validateLoginInput`), detectar configuraciones incompletas o valores de plantilla (`isFirebaseConfigComplete`) y traducir códigos de error de Firebase Auth al español (`getAuthErrorMessage` con `Object.hasOwn`).
+- Isla reactiva `src/components/AuthIsland.jsx` montada con `client:load` en `src/pages/login.astro`: formulario Email/Contraseña con validación accesible (`role="alert"`), botón de visibilidad de contraseña, acceso con Google (`GoogleAuthProvider` + `signInWithPopup`), estado de sesión activa con avatar saneado (`https://`) y cierre de sesión (`signOut`).
+- Plantilla de variables públicas `.env.example` (`PUBLIC_FIREBASE_*`) y suite de pruebas unitarias `tests/auth.test.js` ejecutable mediante `npm test` (`node --test`).
+
+### Seguridad
+- Reglas `.env` y `.env.*` añadidas a `.gitignore` (preservando `!.env.example`) para evitar la exposición accidental de ficheros locales de configuración.
+
+---
+
 ## [1.2.2] - 2026-11-14
 
 ### Añadido

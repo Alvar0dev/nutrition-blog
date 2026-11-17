@@ -19,6 +19,13 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
    npm run build
    npm run preview
    ```
+4. **Ejecutar pruebas unitarias y linter:**
+   ```bash
+   npm test
+   npm run lint
+   ```
+5. **Configurar variables de Firebase Auth (opcional en local hasta activar el portal):**
+   Copiar `.env.example` a `.env` y rellenar las claves `PUBLIC_FIREBASE_*` del proyecto Firebase.
 
 ---
 
@@ -31,7 +38,8 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
 | **Imágenes (`astro:assets`)** | Todas las imágenes locales y remotas (`images.pexels.com`) se redimensionan y codifican a **WebP** en tiempo de compilación con `width` y `height` explícitos (CLS ≈ 0). | [`docs/PERFORMANCE_AUDIT.md`](docs/PERFORMANCE_AUDIT.md) |
 | **Tipografías locales** | `Poppins` (`400`, `600`, `700`) y `Permanent Marker` auto-hospedadas mediante `@fontsource` en `/_astro/*.woff2` (`font-display: swap`), con cero peticiones externas a Google Fonts. | [`src/styles/global.css`](src/styles/global.css) |
 | **SEO y Datos Estructurados** | `<html lang="es">`, URLs canónicas, Open Graph (`es_ES`), Twitter Cards, Schema.org JSON-LD (`HealthAndBeautyBusiness` + `Person`), `sitemap.xml` dinámico y `robots.txt`. | [`src/components/BaseHead.astro`](src/components/BaseHead.astro) |
-| **Extensibilidad Auth** | Punto de extensión `AuthPlaceholder.jsx` renderizado sin sobrecarga de JS en `/login` y `/contacto`, listo para conectar `firebase/auth` cuando se active el portal de clientes. | [`src/components/AuthPlaceholder.jsx`](src/components/AuthPlaceholder.jsx) |
+| **Portal Clientes (Auth)** | Isla `AuthIsland.jsx` (`client:load`) con Firebase Auth aislada en `/login` (`noindex`), manteniendo `AuthPlaceholder.jsx` estático (0 KB JS) en `/contacto`. | [`src/components/AuthIsland.jsx`](src/components/AuthIsland.jsx), [`src/lib/firebase.js`](src/lib/firebase.js) |
+| **Pruebas Unitarias** | Validación de formularios, detección de placeholders y mapeo de errores Firebase en español ejecutados con el runner nativo `node --test`. | [`tests/auth.test.js`](tests/auth.test.js), [`src/lib/authHelpers.js`](src/lib/authHelpers.js) |
 | **Caché CDN Inmutable** | Reglas multi-proveedor (`public/_headers` para Cloudflare Pages y `vercel.json` para Vercel) con caché inmutable de 1 año en `/_astro/*` y revalidación inmediata en HTML y sitemap. | `public/_headers`, `vercel.json` |
 | **Control de Calidad (QA)** | Auditoría técnica y visual sobre las 21 rutas estáticas (escritorio `1280×800` y móvil `375×812`), corrección de proporciones del logo, navegación fluida y WCAG 2.1 AA. | [`docs/QA_AUDIT.md`](docs/QA_AUDIT.md) |
 
@@ -41,6 +49,7 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
 
 ```text
 nutrition-blog/
+├── .env.example                     # Plantilla de variables públicas PUBLIC_FIREBASE_*
 ├── astro.config.mjs                 # Configuración de Astro 7, React y dominios de imágenes
 ├── tailwind.config.js               # Tema visual (colores corporativos y familias tipográficas)
 ├── postcss.config.js                # Pipeline PostCSS (Tailwind CSS + Autoprefixer)
@@ -55,12 +64,16 @@ nutrition-blog/
 │   ├── _headers                     # Cabeceras HTTP de caché inmutable para Cloudflare Pages
 │   ├── favicon.svg
 │   └── robots.txt
+├── tests/
+│   └── auth.test.js                 # Pruebas unitarias nativas (node --test) para helpers y SSR Auth
 └── src/
     ├── content.config.ts            # Colección de contenidos (Astro 7 Content Layer + Zod)
     ├── assets/                      # Activos gráficos originales procesados por astro:assets
     ├── content/
     │   └── blog/                    # 9 artículos de divulgación nutricional en Markdown
     ├── lib/
+    │   ├── authHelpers.js           # Validación de credenciales, config y errores Firebase en español
+    │   ├── firebase.js              # Inicialización segura de Firebase Auth (solo navegador)
     │   └── posts.js                 # Fuente única de verdad (filtrado, ordenación y tiempo de lectura)
     ├── components/
     │   ├── BaseHead.astro           # Metadatos SEO, JSON-LD, canonical, Open Graph y Twitter Cards
@@ -68,7 +81,8 @@ nutrition-blog/
     │   ├── ServiceCard.astro        # Tarjeta reutilizable de servicios (0 JS)
     │   ├── Navbar.jsx               # Isla React (client:visible) con menú móvil accesible
     │   ├── ContactForm.jsx          # Isla React (client:load) con envío por WhatsApp y Email
-    │   └── AuthPlaceholder.jsx      # Punto de extensión para futura autenticación Firebase
+    │   ├── AuthIsland.jsx           # Isla React (client:load) con Firebase Auth exclusiva en /login
+    │   └── AuthPlaceholder.jsx      # Marcador estático (0 JS) en /contacto
     ├── layouts/
     │   └── Layout.astro             # Layout maestro con <html lang="es"> y skip-to-content
     ├── pages/
@@ -76,7 +90,7 @@ nutrition-blog/
     │   ├── 404.astro                # Vista de error 404 personalizada (noindex y recuperación)
     │   ├── blog/                    # Catálogo general (index.astro) y artículos dinámicos ([slug].astro)
     │   ├── contacto.astro           # Perfil profesional y formulario de contacto
-    │   ├── login.astro              # Área de acceso de clientes (noindex)
+    │   ├── login.astro              # Área de acceso de clientes con AuthIsland (noindex)
     │   ├── sitemap.xml.js           # Generador estático de Sitemap XML (19 URLs públicas)
     │   └── servicios/               # Catálogo general y 6 páginas de especialidad
     └── styles/

@@ -1,8 +1,8 @@
 # ADR-001: Migración de SPA (React + Vite) a Arquitectura de Islas con Astro
 
-- **Estado:** Aceptado e implementado (`v1.2.2`)
+- **Estado:** Aceptado e implementado (`v1.3.0`)
 - **Fecha inicial:** 2025-02-18
-- **Última revisión:** 2026-11-14
+- **Última revisión:** 2026-11-17
 - **Responsable:** Álvaro Aguilar
 
 ---
@@ -53,7 +53,7 @@ Durante la auditoría técnica inicial sobre la primera versión en React + Vite
 - **Implementación:**
   1. `src/components/Navbar.jsx` (`client:visible`): isla interactiva encargada de gestionar la apertura/cierre del menú móvil accesible (`isOpen`, `aria-expanded`) y resaltar la ruta activa (`aria-current="page"`).
   2. `src/components/ContactForm.jsx` (`client:load`): isla interactiva con estado controlado (`useState`), validación de entradas y despacho directo pre-formateado hacia WhatsApp o cliente de correo.
-  3. `src/components/AuthPlaceholder.jsx` (renderizado estático sin directiva `client:*` por defecto): mantiene el punto de montaje `[data-auth-placeholder]` documentado en `/contacto` y `/login` con **0 KB de JavaScript** hasta que se active `firebase/auth`.
+  3. `src/components/AuthIsland.jsx` (`client:load`, exclusiva en `/login`): isla interactiva de acceso para clientes con Firebase Auth (Email/Contraseña y Google Popup), mientras `src/components/AuthPlaceholder.jsx` se mantiene renderizado estáticamente (0 KB JS) en `/contacto`.
 
 ### 3.4. Pipeline de imágenes (`astro:assets`) y fuentes auto-hospedadas (`@fontsource`)
 - **Por qué:** Depender de Google Fonts o de imágenes remotas sin procesar rompe la privacidad, introduce saltos visuales (CLS) y degrada el LCP en redes móviles.
@@ -105,7 +105,7 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
 ### 4.8. Aislamiento estricto de Firebase SDK y política de despliegue en CDN con caché inmutable
 - **Problema:** La integración de servicios de autenticación pesados (como Firebase Authentication) en sitios orientados a contenido estático corre el riesgo de degradar severamente el *Total Blocking Time* (TBT) y el peso del bundle inicial si el SDK se carga de forma global o en componentes que se hidratan al cargar la página. Asimismo, en arquitecturas estáticas servidas desde CDN (Cloudflare Pages / Vercel), una política de caché laxa o mal configurada puede provocar que los usuarios reciban documentos HTML desactualizados que intenten cargar fragmentos JavaScript con hashes ya purgados del servidor tras un despliegue.
 - **Solución:**
-  1. **Aislamiento de Auth:** El SDK de Firebase y su lógica interactiva residirán exclusivamente en la isla reactiva `AuthIsland.jsx` montada con `client:load` únicamente en la ruta `/login` (que ya cuenta con `<meta name="robots" content="noindex, nofollow">`). Todas las 19 rutas públicas del portal (`/`, `/blog`, `/blog/[slug]`, `/servicios`, `/contacto`) permanecen con **0 KB de JavaScript de Firebase**.
+  1. **Aislamiento de Auth (implementado en `v1.3.0`):** El SDK de Firebase (`firebase@^13.4.0`) y su lógica interactiva residen exclusivamente en la isla reactiva `AuthIsland.jsx` (`~113.15 KB` compilados en `dist/_astro/`) montada con `client:load` únicamente en la ruta `/login` (protegida con `<meta name="robots" content="noindex, nofollow">`). Todas las 20 rutas restantes del portal (`/`, `/blog`, `/blog/[slug]`, `/servicios`, `/contacto`, `/404`) permanecen con **0 KB de JavaScript de Firebase**.
   2. **Estrategia de caché CDN multi-proveedor (`public/_headers` y `vercel.json`):** Se materializó la regla de cabeceras inmutables para ambos ecosistemas principales sin *vendor lock-in*:
      - Activos generados con hash en `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable` (1 año de caché en navegador y CDN sin riesgo de colisión, pues cada cambio de código o imagen altera su hash).
      - Documentos HTML y sitemap: `Cache-Control: public, max-age=0, must-revalidate` para HTML y `max-age=3600, must-revalidate` para `sitemap.xml`, garantizando que cualquier actualización o despliegue en producción sea visible de inmediato por los usuarios y rastreadores de búsqueda.
@@ -129,9 +129,21 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
   6. Se introdujo validación reactiva con mensaje explicativo y banner accesible `role="alert"` en `ContactForm.jsx`.
   7. Se normalizó la jerarquía tipográfica secuencial `H1` → `H2` → `H3` para navegación de lectores de pantalla y rastreo semántico SEO.
 
+### 4.10. Integración de Firebase Auth, seguridad SSR y pruebas unitarias sin DOM (`v1.3.0`)
+- **Problema:** Integrar `firebase/auth` en un sitio estático Astro 7 presenta cuatro riesgos técnicos inmediatos:
+  1. **Ejecución en compilación (SSR/SSG):** Incluso las islas marcadas con `client:load` se pre-renderizan en Node.js durante `npm run build`, y Vite incrusta las variables `PUBLIC_*` estáticamente en tiempo de compilación. Llamar a `initializeApp()` o `getAuth()` en el nivel superior del módulo sin credenciales válidas o sin guardia de navegador provocaría fallos en build o discrepancias de hidratación (*hydration mismatch*) en el cliente.
+  2. **Entornos sin credenciales `.env`:** Mientras el proyecto de Firebase en Google Cloud está pendiente de aprovisionamiento, la página `/login` no debía renderizar una pantalla en blanco ni arrojar excepciones no controladas al intentar probar el formulario.
+  3. **Testabilidad sin dependencias externas:** El proyecto no contaba con suite de pruebas ni librería de DOM simulado (`jsdom`), dificultando validar reglas de negocio de autenticación (validación de correo/contraseña, detección de marcadores de plantilla y traducción de errores Firebase) sin acoplarse a React.
+  4. **Seguridad de credenciales, avatares y dependencias:** `.gitignore` no excluía `.env` por defecto; el campo `photoURL` devuelto por proveedores externos requiere validación de esquema; y npm 12 bloqueó scripts `postinstall` heredados (`@firebase/util`, `protobufjs`) por política de seguridad.
+- **Solución:**
+  1. **Inicialización perezosa solo en navegador (`src/lib/firebase.js`):** `getFirebaseAuth()` comprueba `typeof window === 'undefined'` en primera línea, valida la configuración con `isFirebaseConfigComplete()` y envuelve `initializeApp` / `getAuth` en un bloque `try/catch` que devuelve `null` ante fallos, reutilizando instancias existentes (`getApps()`) para soportar HMR en desarrollo.
+  2. **Degradación elegante y paridad SSR/CSR (`src/components/AuthIsland.jsx`):** El estado inicial se deriva de `isFirebaseConfigured()` de forma idéntica en servidor y cliente. Si faltan credenciales en `.env`, el formulario permanece operativo para validación local junto con un aviso informativo (`role="status"`) y muestra un error controlado (`role="alert"`) al intentar autenticar contra Firebase. Además, `photoURL` exige el prefijo `https://` junto con `referrerPolicy="no-referrer"`.
+  3. **Desacoplamiento en helpers puros (`src/lib/authHelpers.js` + `tests/auth.test.js`):** Se extrajeron `isFirebaseConfigComplete`, `validateLoginInput` y `getAuthErrorMessage` (blindado con `Object.hasOwn` frente a propiedades heredadas de prototipo) a un módulo puro sin dependencias de React ni navegador, habilitando `npm test` mediante el runner nativo `node --test` (4/4 pruebas en verde en ~110 ms) con `import.meta.env ?? {}` en `firebase.js`.
+  4. **Higiene y aislamiento verificados:** Se añadieron `.env` y `.env.*` (preservando `!.env.example`) a `.gitignore`, se verificó que `firebase@13.4.0` compila y opera sin ejecutar scripts `postinstall`, y se comprobó sobre los 21 HTML de `dist/` que ni `AuthIsland` ni `firebase` aparecen fuera de `dist/login/index.html`.
+
 ---
 
-## 5. Métricas consolidadas del sistema (`v1.2.2`)
+## 5. Métricas consolidadas del sistema (`v1.3.0`)
 
 | Métrica / Auditoría | Valor alcanzado | Estado |
 |---|---|---|
@@ -141,7 +153,9 @@ Durante la construcción y migración del proyecto surgieron seis desafíos téc
 | **Largest Contentful Paint (LCP)** | `0.4 s – 0.5 s` | Excelente |
 | **Total Blocking Time (TBT)** | `0 ms` (rutas estáticas) | Sin bloqueo |
 | **Cumulative Layout Shift (CLS)** | `0 – 0.015` | Sin saltos visuales |
-| **Páginas estáticas compiladas** | **21 páginas** (incluyendo `/404.html`) en `~2.7 s` | SSG de alta velocidad |
+| **Aislamiento Firebase SDK** | **0 KB** en 20 rutas públicas/404; isla `AuthIsland` (`~113 KB`) exclusiva en `/login` (`noindex`) | Aislado |
+| **Pruebas unitarias (`npm test`)** | **4/4** (`node --test`, `0` dependencias extra) | En verde |
+| **Páginas estáticas compiladas** | **21 páginas** (incluyendo `/404.html`) en `~1.6 s` | SSG de alta velocidad |
 | **Recursos WebP optimizados** | **41 imágenes** generadas automáticamente en `dist/_astro/` (logo unificado 384×95, 5 KB) | Compresión máxima |
 | **URLs públicas en Sitemap** | **19 URLs** canónicas con `lastmod` dinámico | 100% indexable |
 

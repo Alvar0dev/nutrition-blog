@@ -1,13 +1,14 @@
 # Hoja de Ruta de Optimizaciones y Mejoras de Postproducción
 
-Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción y evolución sobre **Astro 7** (`v1.2.2`), junto con la planificación de la siguiente sesión.
+Documento de diagnóstico técnico, decisiones de producto y registro de mejoras implementadas en la fase de postproducción y evolución sobre **Astro 7** (`v1.3.0`), junto con la planificación de la siguiente sesión.
 
 ---
 
-## 1. Resumen de Estado (`v1.2.2`)
+## 1. Resumen de Estado (`v1.3.0`)
 
 | Prioridad | Área | Hallazgo original | Estado | Solución aplicada |
 |---|---|---|---|---|
+| **Alta (P1)** | **Portal de Clientes (Firebase Auth)** | `/login` mostraba solo un placeholder sin lógica ni cliente Firebase. | **Completado (`v1.3.0`)** | SDK `firebase@^13.4.0` aislado en `AuthIsland.jsx` (`client:load` en `/login` con `noindex`), cliente browser-only (`src/lib/firebase.js`), helpers testeados (`node --test`), `.env.example` y protección `.gitignore`. |
 | **Alta (P1)** | **Control de Calidad Integral (QA)** | Recorte visual de logotipo ("RICIC COACH"), desbordamiento navbar, colapso de Hero en móvil, ausencia de 404 y fallos de teclado/semántica. | **Completado (`v1.2.2`)** | 7 hallazgos resueltos: logo 384×95 (5.0 KB WebP unificado), hero móvil min-h 280px, 404.astro (noindex + 3 CTAs, 21 páginas estáticas), listeners condicionales en Navbar.jsx, validación trim con role="alert" en ContactForm.jsx y H1→H2→H3 secuencial. |
 | **Alta (P1)** | **Funnels de Conversión** | Todos los servicios apuntaban genéricamente a `/contacto` o a un enlace antiguo. | **Completado** | Segmentación estratégica de CTAs hacia Google Forms (evaluación clínica/objetivos) y WhatsApp directo `+34 655 397 061` (asesoramiento y educación). |
 | **Alta (P1)** | **UX & Accesibilidad Móvil** | Enlaces de navegación ocultos en móvil (`hidden md:flex`) sin menú hamburguesa. | **Completado** | Menú desplegable móvil accesible (`aria-expanded`, `aria-controls`) e indicador de ruta activa (`aria-current="page"`) en `Navbar.jsx` + enlace *skip-to-content* en `Layout.astro`. |
@@ -63,25 +64,33 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
   5. **Página de error 404 (`src/pages/404.astro`):** Compila nativamente a `dist/404.html` con directiva `noindex={true}` y 3 CTAs de recuperación estratégica (`/`, `/servicios`, `/blog`), elevando el total a **21 páginas estáticas** listas para ser servidas por Cloudflare Pages y Vercel.
   6. **Jerarquía secuencial de encabezados:** Se corrigieron los saltos de `H1` a `H3` en servicios y contacto, normalizando a `H1` → `H2` → `H3` para navegación accesible de lectores de pantalla y rastreo semántico de motores de búsqueda.
 
+### 2.9. Portal de Clientes con Firebase Auth, Aislamiento SSR y Testing Nativo (`v1.3.0`)
+- **Por qué:** Habilitar el acceso privado en `/login` mediante correo/contraseña y Google sin arrastrar los `~113 KB` del SDK de Firebase al resto del portal público ni comprometer los `0 ms` de TBT y 100/100 de Lighthouse en portada, blog, servicios y contacto.
+- **Dificultades técnicas resueltas:**
+  - *Pre-renderizado SSR de islas:* Astro ejecuta el primer render de `client:load` en Node.js durante `npm run build` e incrusta variables `PUBLIC_*` estáticamente, por lo que inicializar Firebase en el nivel superior del módulo habría fallado en SSR o desincronizado la hidratación cuando falta `.env`.
+  - *Testabilidad sin DOM:* El repositorio no disponía de suite de pruebas ni `jsdom` para verificar validaciones, placeholders de configuración y mapeo de códigos Firebase.
+  - *Higiene y seguridad:* `.gitignore` no cubría `.env`, los avatares de OAuth (`photoURL`) requerían validación de protocolo y npm 12 bloqueó scripts `postinstall` heredados de subdependencias.
+- **Cómo se resolvió:** Se encapsuló `getFirebaseAuth()` en `src/lib/firebase.js` con guardia estricta `typeof window === 'undefined'`, detección de valores plantilla (`isFirebaseConfigComplete`) y bloque `try/catch` tolerante a fallos; se desacoplaron las reglas puras en `src/lib/authHelpers.js` (`validateLoginInput`, `getAuthErrorMessage` con `Object.hasOwn`) cubiertas con `tests/auth.test.js` (`node --test`); se implementó `AuthIsland.jsx` exclusivamente en `/login` (`noindex`) con degradación elegante si falta `.env` y saneamiento `https://` en `photoURL`; y se protegió `.env`/`.env.*` en `.gitignore` dejando `AuthPlaceholder.jsx` estático (0 KB JS) en `/contacto`.
+
 ---
 
 ## 3. Próximos Pasos (Backlog para Continuar Mañana)
 
-Con la versión **`v1.2.2`** completamente estabilizada, libre de errores en linter y compilando de forma limpia sus **21 páginas estáticas**, el plan de trabajo para la sesión de mañana se estructura en tres tareas prioritarias:
+Con la versión **`v1.3.0`** compilando limpiamente sus **21 páginas estáticas**, `npm run lint` sin errores, `4/4` pruebas unitarias en verde y el aislamiento de Firebase Auth verificado en `dist/`, el plan de trabajo para continuar mañana se estructura en tres acciones:
 
 1. **TODO 1 — Configuración de Perfiles Sociales Oficiales y Marcado Schema.org (Paso 1):**
    - **Objetivo:** Reemplazar las URLs de marcador de posición de Instagram y LinkedIn en `src/components/Footer.astro` y sincronizar el grafo Schema.org (`sameAs`) en `src/components/BaseHead.astro`.
    - **Estado:** Bloqueado únicamente a la espera de los enlaces definitivos de Álvaro Aguilar.
    - **Acción inmediata:** Insertar los enlaces con `aria-label` descriptivos y verificar con el validador de Schema.org.
 
-2. **TODO 2 — Portal de Clientes con Firebase Authentication (Paso 3):**
-   - **Objetivo:** Implementar el acceso seguro para clientes en `/login` sin comprometer la velocidad ni los Core Web Vitals de las rutas públicas.
-   - **Estado:** Especificado y listo para desarrollo.
-   - **Acción inmediata:** Instalar `firebase`, crear el cliente en `src/lib/firebase.js` aislado al navegador, documentar variables en `.env.example`, construir la isla interactiva `src/components/AuthIsland.jsx` (Email/Contraseña + Google Popup, estados de carga y error en español) y montarla con `client:load` exclusivamente en `src/pages/login.astro` (protegida con `noindex`).
+2. **TODO 2 — Activación y Prueba Real de Credenciales Firebase en `.env` (Cierre operativo de Paso 3):**
+   - **Objetivo:** Conectar el portal `/login` ya implementado con un proyecto real de Firebase Authentication y completar la verificación interactiva en navegador estándar (pendiente de entorno no elevado tras el bloqueo de relay en sesión elevada).
+   - **Estado:** Código completo (`v1.3.0`); pendiente de claves del proyecto Firebase en consola.
+   - **Acción inmediata:** Copiar `.env.example` a `.env` con las credenciales reales, habilitar Email/Password y Google en Firebase Console (autorizando el dominio de producción) y probar inicio/cierre de sesión en vivo.
 
 3. **TODO 3 — Despliegue en Producción y Validación de Dominio (Paso 4.2):**
    - **Objetivo:** Publicar la plataforma en la CDN global definitiva (Cloudflare Pages o Vercel) y vincular el dominio `nutricionalcoach.com`.
-   - **Estado:** Listo para conectar (las cabeceras de caché inmutable `public/_headers` y `vercel.json` ya están integradas).
-   - **Acción inmediata:** Conectar el repositorio de GitHub a la plataforma, configurar registros DNS (CNAME/A), activar SSL/TLS automático y HTTP/3, y verificar en vivo la auditoría Lighthouse sobre `https://nutricionalcoach.com`.
+   - **Estado:** Listo para conectar (cabeceras `public/_headers`, `vercel.json` y variables `PUBLIC_FIREBASE_*` preparadas).
+   - **Acción inmediata:** Conectar el repositorio de GitHub a la plataforma, cargar las variables de entorno `PUBLIC_FIREBASE_*` en el panel del hosting, configurar registros DNS (CNAME/A), activar SSL/TLS automático y HTTP/3, y verificar en vivo la auditoría Lighthouse sobre `https://nutricionalcoach.com`.
 
 *(Para el detalle técnico paso a paso de cada una de estas tareas, consultar [`docs/PLAN_FASE_2_EJECUCION.md`](PLAN_FASE_2_EJECUCION.md)).*
