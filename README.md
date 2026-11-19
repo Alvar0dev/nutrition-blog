@@ -25,7 +25,7 @@ Sitio web corporativo y blog de divulgación de **Nutricional Coach (Álvaro Agu
    npm run lint
    ```
 5. **Configurar variables de Firebase Auth (opcional en local hasta activar el portal):**
-   Copiar `.env.example` a `.env` y rellenar las claves `PUBLIC_FIREBASE_*` del proyecto Firebase.
+   Copiar `.env.example` a `.env` y rellenar las claves `PUBLIC_FIREBASE_*` siguiendo la guía paso a paso en [`docs/FIREBASE_TUTORIAL.md`](docs/FIREBASE_TUTORIAL.md).
 
 ---
 
@@ -56,6 +56,7 @@ nutrition-blog/
 ├── vercel.json                      # Cabeceras HTTP de caché inmutable y revalidación para Vercel
 ├── docs/
 │   ├── ADR-001-migracion-arquitectura-islas.md
+│   ├── FIREBASE_TUTORIAL.md
 │   ├── PERFORMANCE_AUDIT.md
 │   ├── POST_PRODUCTION_ROADMAP.md
 │   ├── PLAN_FASE_2_EJECUCION.md

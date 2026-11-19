@@ -70,6 +70,7 @@ Documento de diagnóstico técnico, decisiones de producto y registro de mejoras
   - *Pre-renderizado SSR de islas:* Astro ejecuta el primer render de `client:load` en Node.js durante `npm run build` e incrusta variables `PUBLIC_*` estáticamente, por lo que inicializar Firebase en el nivel superior del módulo habría fallado en SSR o desincronizado la hidratación cuando falta `.env`.
   - *Testabilidad sin DOM:* El repositorio no disponía de suite de pruebas ni `jsdom` para verificar validaciones, placeholders de configuración y mapeo de códigos Firebase.
   - *Higiene y seguridad:* `.gitignore` no cubría `.env`, los avatares de OAuth (`photoURL`) requerían validación de protocolo y npm 12 bloqueó scripts `postinstall` heredados de subdependencias.
+  - *Aprovisionamiento gratuito y restricciones operativas:* El portal utiliza únicamente Email/Contraseña y Google para mantenerse dentro de la capa gratuita **Spark** (hasta 50.000 MAU/mes sin tarjeta de crédito), evitando flujos SMS (plan Blaze) o *Email link* sin contraseña (limitado a 5 correos/día en Spark). Como guía operativa reproducible se creó [`docs/FIREBASE_TUTORIAL.md`](FIREBASE_TUTORIAL.md), documentando el alta gratuita, la lista blanca de *Authorized domains* y la necesidad de recompilar al modificar variables `PUBLIC_FIREBASE_*`.
 - **Cómo se resolvió:** Se encapsuló `getFirebaseAuth()` en `src/lib/firebase.js` con guardia estricta `typeof window === 'undefined'`, detección de valores plantilla (`isFirebaseConfigComplete`) y bloque `try/catch` tolerante a fallos; se desacoplaron las reglas puras en `src/lib/authHelpers.js` (`validateLoginInput`, `getAuthErrorMessage` con `Object.hasOwn`) cubiertas con `tests/auth.test.js` (`node --test`); se implementó `AuthIsland.jsx` exclusivamente en `/login` (`noindex`) con degradación elegante si falta `.env` y saneamiento `https://` en `photoURL`; y se protegió `.env`/`.env.*` en `.gitignore` dejando `AuthPlaceholder.jsx` estático (0 KB JS) en `/contacto`.
 
 ---
@@ -84,9 +85,9 @@ Con la versión **`v1.3.0`** compilando limpiamente sus **21 páginas estáticas
    - **Acción inmediata:** Insertar los enlaces con `aria-label` descriptivos y verificar con el validador de Schema.org.
 
 2. **TODO 2 — Activación y Prueba Real de Credenciales Firebase en `.env` (Cierre operativo de Paso 3):**
-   - **Objetivo:** Conectar el portal `/login` ya implementado con un proyecto real de Firebase Authentication y completar la verificación interactiva en navegador estándar (pendiente de entorno no elevado tras el bloqueo de relay en sesión elevada).
-   - **Estado:** Código completo (`v1.3.0`); pendiente de claves del proyecto Firebase en consola.
-   - **Acción inmediata:** Copiar `.env.example` a `.env` con las credenciales reales, habilitar Email/Password y Google en Firebase Console (autorizando el dominio de producción) y probar inicio/cierre de sesión en vivo.
+   - **Objetivo:** Conectar el portal `/login` ya implementado con un proyecto real gratuito (**Plan Spark**) en Firebase Authentication y completar la verificación interactiva en navegador estándar.
+   - **Estado:** Código (`v1.3.0`) y tutorial paso a paso ([`docs/FIREBASE_TUTORIAL.md`](FIREBASE_TUTORIAL.md)) completados; pendiente de alta del proyecto en Firebase Console y creación de `.env` local.
+   - **Acción inmediata:** Seguir [`docs/FIREBASE_TUTORIAL.md`](FIREBASE_TUTORIAL.md) para copiar `.env.example` a `.env` con las credenciales reales, habilitar Email/Password y Google en Firebase Console (autorizando el dominio de producción) y probar inicio/cierre de sesión en vivo.
 
 3. **TODO 3 — Despliegue en Producción y Validación de Dominio (Paso 4.2):**
    - **Objetivo:** Publicar la plataforma en la CDN global definitiva (Cloudflare Pages o Vercel) y vincular el dominio `nutricionalcoach.com`.

@@ -363,9 +363,9 @@ Todas las anomalías visuales, de navegación, de accesibilidad por teclado y de
    - *Dependencia:* Handles/URLs oficiales de Instagram y LinkedIn de Álvaro Aguilar.
    - *Acción:* Actualizar los enlaces de `src/components/Footer.astro` con atributos de accesibilidad `aria-label` descriptivos y sincronizar el array `sameAs` del grafo JSON-LD en `src/components/BaseHead.astro`.
 2. **TODO 2 — Activación de Credenciales Firebase en Portal de Clientes (Cierre Paso 3 — `v1.3.0`):**
-   - *Estado:* Código implementado en `v1.3.0` (`src/lib/firebase.js`, `src/lib/authHelpers.js`, `AuthIsland.jsx`, `login.astro`, `.env.example`, `tests/auth.test.js`) con aislamiento verificado (0 KB de Firebase en las 20 rutas restantes).
-   - *Dependencia pendiente:* Credenciales reales del proyecto de Firebase en consola de Google Cloud/Firebase y prueba interactiva en navegador estándar.
-   - *Acción:* Copiar `.env.example` a `.env`, configurar `PUBLIC_FIREBASE_*` y verificar inicio/cierre de sesión Email/Google en vivo.
+   - *Estado:* Código implementado en `v1.3.0` (`src/lib/firebase.js`, `src/lib/authHelpers.js`, `AuthIsland.jsx`, `login.astro`, `.env.example`, `tests/auth.test.js`) con aislamiento verificado (0 KB de Firebase en las 20 rutas restantes) y guía paso a paso en [`docs/FIREBASE_TUTORIAL.md`](FIREBASE_TUTORIAL.md).
+   - *Dependencia pendiente:* Creación gratuita del proyecto en Firebase Console (Plan Spark) con sus credenciales en `.env` y prueba interactiva en navegador estándar.
+   - *Acción:* Seguir [`docs/FIREBASE_TUTORIAL.md`](FIREBASE_TUTORIAL.md), copiar `.env.example` a `.env`, configurar `PUBLIC_FIREBASE_*` y verificar inicio/cierre de sesión Email/Google en vivo.
 3. **TODO 3 — Despliegue en Producción y Validación de Dominio (Paso 4.2):**
    - *Dependencia:* Elección de plataforma definitiva (Cloudflare Pages o Vercel) y acceso DNS a `nutricionalcoach.com`.
    - *Acción:* Vincular el repositorio a la plataforma de hosting, validar que `dist/_headers` o `vercel.json` apliquen las reglas de caché inmutable, configurar los registros CNAME/A, verificar el certificado SSL/TLS y ejecutar la auditoría Lighthouse final en producción real sobre la URL pública.
